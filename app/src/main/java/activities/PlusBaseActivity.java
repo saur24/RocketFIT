@@ -1,4 +1,4 @@
-package projects.rocketfit;
+package activities;
 
 import android.app.Activity;
 import android.content.Intent;

@@ -1,4 +1,4 @@
-package projects.rocketfit;
+package activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -29,6 +29,8 @@ import com.google.android.gms.common.SignInButton;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import projects.rocketfit.R;
 
 
 /**
