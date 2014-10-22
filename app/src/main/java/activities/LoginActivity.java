@@ -22,12 +22,15 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.content.*;
+
+
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
-import com.parse.Parse;
-import com.parse.ParseObject;
+import com.parse.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -148,6 +151,70 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
+        // Check for current user, if already logged in; proceed, else; signup or login
+ /*       ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null) {
+            // do stuff with the user
+        } else {
+            // show the signup or login screen
+        }
+*/
+
+        /* Parse Signing Up */
+
+        ParseUser user = new ParseUser();
+        user.setUsername(email);
+        user.setPassword(password);
+        user.setEmail(email);
+
+// other fields can be set just like with ParseObject
+//       user.put("phone", "650-253-0000");
+
+        user.signUpInBackground(new SignUpCallback() {
+            public void done(ParseException e) {
+                if (e == null) {
+                    // Hooray! Let them use the app now.
+
+                    Context context = getApplicationContext();
+                    CharSequence text = "Successful Login!";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+
+                } else {
+                    // Sign up didn't succeed. Look at the ParseException
+                    // to figure out what went wrong
+                    Context context = getApplicationContext();
+                    CharSequence text = "Username already exists. Please resubmit with different Username!";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+            }
+        });
+
+        /* Parse Signing Up Complete */
+
+        /* Parse Logging In */
+
+        ParseUser.logInInBackground(email, password, new LogInCallback() {
+            public void done(ParseUser user, ParseException e) {
+                if (user != null) {
+                    // Hooray! The user is logged in.
+                } else {
+                    // Signup failed. Look at the ParseException to see what happened.
+                }
+            }
+        });
+
+        /* Parse Logging In Complete */
+
+
+
+    // DAVID COMMENTED THIS ALL OUT FOR TESTING PARSE
+
         boolean cancel = false;
         View focusView = null;
 
@@ -160,7 +227,7 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
@@ -170,7 +237,7 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             cancel = true;
         }
 
-        if (cancel) {
+   /*    if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
@@ -181,6 +248,7 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
+    */
     }
 
     private boolean isEmailValid(String email) {
