@@ -1,4 +1,4 @@
-package activities;
+package com.rocketfit.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

@@ -1,4 +1,4 @@
-package fragments;
+package com.rocketfit.fragments;
 
 
 import android.app.ActionBar;
@@ -273,7 +273,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     /**
-     * Callbacks interface that all activities using this fragment must implement.
+     * Callbacks interface that all com.rocketfit.activities using this fragment must implement.
      */
     public static interface NavigationDrawerCallbacks {
         /**
