@@ -6,10 +6,10 @@ import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -40,6 +40,7 @@ import java.util.List;
 import projects.rocketfit.R;
 
 
+
 /**
  * A login screen that offers login via email/password and via Google+ sign in.
  * <p/>
@@ -49,18 +50,6 @@ import projects.rocketfit.R;
  * and follow the steps in "Step 1" to create an OAuth 2.0 client for your package.
  */
 public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<Cursor> {
-
-     /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -113,11 +102,21 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             }
         });
 
+        // If user clicks sign in, attempt to log in or sign in
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
+            }
+        });
+
+        // If user clicks register, attempt to register the user
+        Button mRegisterButton = (Button) findViewById(R.id.email_register_button);
+        mRegisterButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptRegister();
             }
         });
 
@@ -131,6 +130,61 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         getLoaderManager().initLoader(0, null, this);
     }
 
+    /**
+     * Attempts to sign in or register the account specified by the login form.
+     * If there are form errors (invalid email, missing fields, etc.), the
+     * errors are presented and no actual login attempt is made.
+     */
+    public void attemptRegister() {
+        // Reset errors.
+        mEmailView.setError(null);
+        mPasswordView.setError(null);
+
+        // Store values at the time of the register attempt.
+        String email = mEmailView.getText().toString();
+        String password = mPasswordView.getText().toString();
+
+        ParseUser user = new ParseUser();
+        user.setUsername(email);
+        user.setPassword(password);
+        user.setEmail(email);
+
+        // Check for a valid password, if the user entered one.
+        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+        }
+
+        // Check for a valid email address.
+        if (TextUtils.isEmpty(email)) {
+            mEmailView.setError(getString(R.string.error_field_required));
+
+        } else if (!isEmailValid(email)) {
+            mEmailView.setError(getString(R.string.error_invalid_email));
+
+        }
+        user.signUpInBackground(new SignUpCallback() {
+            public void done(ParseException e) {
+                if (e == null) {
+                    // Hooray! Let them use the app now.
+                    Context context = getApplicationContext();
+                    CharSequence text = "You have successfully signed up, CONGRATS DUDE!";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                } else {
+                    // Sign up didn't succeed. Look at the ParseException
+                    // to figure out what went wrong
+                    Context context = getApplicationContext();
+                    CharSequence text = "ERROR SIGNING UP. GET THE FUCK OUT!";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+            }
+        });
+    }
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -138,10 +192,6 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
      * errors are presented and no actual login attempt is made.
      */
     public void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
-
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -179,8 +229,36 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+
+             ParseUser.logInInBackground(email, password, new LogInCallback() {
+                 public void done(ParseUser user, ParseException e) {
+                     if (user != null) {
+                         // Hooray! The user is logged in.
+                         Context context = getApplicationContext();
+                         CharSequence text = "Successful Login!";
+                         int duration = Toast.LENGTH_SHORT;
+
+                         Toast toast = Toast.makeText(context, text, duration);
+                         toast.show();
+
+                         Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                         startActivity(intent);
+                         finish();
+                     } else {
+                         // Login failed. Look at the ParseException to see what happened.
+                         Context context = getApplicationContext();
+                         CharSequence text = "Login failed bitch!";
+                         int duration = Toast.LENGTH_SHORT;
+
+                         Toast toast = Toast.makeText(context, text, duration);
+                         toast.show();
+
+                         showProgress(false);
+                     }
+                 }
+             });
+        //    mAuthTask = new UserLoginTask(email, password);
+        //    mAuthTask.execute((Void) null);
         }
     }
 
@@ -338,96 +416,6 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
-    }
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            ParseUser user = new ParseUser();
-            user.setUsername(mEmail);
-            user.setPassword(mPassword);
-            user.setEmail(mEmail);
-
-// other fields can be set just like with ParseObject
-//       user.put("phone", "650-253-0000");
-
-            user.signUpInBackground(new SignUpCallback() {
-                public void done(ParseException e) {
-                    if (e == null) {
-                        // Hooray! Let them use the app now.
-                    } else {
-                        // Sign up didn't succeed. Look at the ParseException
-                        // to figure out what went wrong
-                        Context context = getApplicationContext();
-                        CharSequence text = "Username already exists. Please resubmit with different Username!";
-                        int duration = Toast.LENGTH_SHORT;
-
-                        Toast toast = Toast.makeText(context, text, duration);
-                        toast.show();
-                    }
-                }
-            });
-
-            ParseUser.logInInBackground(mEmail, mPassword, new LogInCallback() {
-                public void done(ParseUser user, ParseException e) {
-                    if (user != null) {
-                        // Hooray! The user is logged in.
-                        Context context = getApplicationContext();
-                        CharSequence text = "Successful Login!";
-                        int duration = Toast.LENGTH_SHORT;
-
-                        Toast toast = Toast.makeText(context, text, duration);
-                        toast.show();
-                    } else {
-                        // Login failed. Look at the ParseException to see what happened.
-
-                    }
-                }
-            });
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                Context context = getApplicationContext();
-                CharSequence text = "FUCK YOU ANDROID!";
-                int duration = Toast.LENGTH_SHORT;
-
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
-                //finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
     }
 }
 
