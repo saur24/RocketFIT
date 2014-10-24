@@ -29,6 +29,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <ImageView
+                android:background="@drawable/activity_background"
+                android:layout_width="900px"
+                android:layout_height="560px"
+                android:layout_gravity="center_horizontal"
+                />
+
             <LinearLayout
                 android:id="@+id/email_login_form"
                 android:layout_width="match_parent"
