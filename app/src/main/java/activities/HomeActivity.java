@@ -57,6 +57,7 @@ public class HomeActivity extends Activity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
+
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
@@ -86,7 +87,6 @@ public class HomeActivity extends Activity
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -152,5 +152,4 @@ public class HomeActivity extends Activity
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
-
 }

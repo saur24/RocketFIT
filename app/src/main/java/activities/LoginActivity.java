@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
@@ -23,14 +24,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.*;
-
-
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
-import com.parse.*;
+import com.parse.LogInCallback;
+import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,9 +79,6 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         setContentView(R.layout.activity_login);
 
         Parse.initialize(this, "UjyPdUeq0paST1N1ak5ByZw2a9hLWt8qpAvCG407", "1NH9jcbeKsZTQY7NV6BrbGrhE0PCwyXvYpYYJZwP");
-        ParseObject testObject = new ParseObject("TestObject");
-        testObject.put("foo", "bar");
-        testObject.saveInBackground();
 
         // Find the Google+ sign in button.
         mPlusSignInButton = (SignInButton) findViewById(R.id.plus_sign_in_button);
