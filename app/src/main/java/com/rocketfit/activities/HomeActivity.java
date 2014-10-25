@@ -1,4 +1,4 @@
-package activities;
+package com.rocketfit.activities;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -15,8 +15,9 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import adapters.ImageAdapter;
-import fragments.NavigationDrawerFragment;
+import com.rocketfit.adapters.ImageAdapter;
+import com.rocketfit.fragments.NavigationDrawerFragment;
+
 import projects.rocketfit.R;
 
 
@@ -60,7 +61,7 @@ public class HomeActivity extends Activity
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
+        // update the main content by replacing com.rocketfit.fragments
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))

@@ -1,4 +1,4 @@
-package adapters;
+package com.rocketfit.adapters;
 
 import android.content.Context;
 import android.view.View;
