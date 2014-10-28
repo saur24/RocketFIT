@@ -10,6 +10,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.plus.PlusClient;
+import com.parse.ParseUser;
 
 
 /**
@@ -240,6 +241,14 @@ public abstract class PlusBaseActivity extends Activity
         updateConnectButtonState();
         setProgressBarVisible(false);
         onPlusClientSignIn();
+
+        ParseUser user = new ParseUser();
+
+     //   user.setUsername();
+     //   user.setEmail();
+
+        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+        startActivity(intent);
     }
 
     /**
@@ -249,6 +258,9 @@ public abstract class PlusBaseActivity extends Activity
     public void onDisconnected() {
         updateConnectButtonState();
         onPlusClientSignOut();
+
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(intent);
     }
 
     /**
