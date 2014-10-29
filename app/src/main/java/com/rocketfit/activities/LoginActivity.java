@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,16 +26,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.widget.LoginButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
 import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import projects.rocketfit.R;
@@ -69,8 +73,19 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
 
         Parse.initialize(this, "UjyPdUeq0paST1N1ak5ByZw2a9hLWt8qpAvCG407", "1NH9jcbeKsZTQY7NV6BrbGrhE0PCwyXvYpYYJZwP");
 
+        ParseFacebookUtils.initialize("844747758892958");
+
+        ParseUser currentUser = ParseUser.getCurrentUser();
+
+
+        if (currentUser != null) {
+            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
         // Find the Google+ sign in button.
-        mPlusSignInButton = (SignInButton) findViewById(R.id.plus_sign_in_button);
+    /*    mPlusSignInButton = (SignInButton) findViewById(R.id.plus_sign_in_button);
         if (supportsGooglePlayServices()) {
             // Set a listener to connect the user when the G+ button is clicked.
             mPlusSignInButton.setOnClickListener(new OnClickListener() {
@@ -85,7 +100,7 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             mPlusSignInButton.setVisibility(View.GONE);
             return;
         }
-
+    */
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -120,14 +135,67 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             }
         });
 
+        Button mFacebookButton = (Button) findViewById(R.id.ourFBButton);
+        mFacebookButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptFBLogin();
+            }
+        });
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         mEmailLoginFormView = findViewById(R.id.email_login_form);
-        mSignOutButtons = findViewById(R.id.plus_sign_out_buttons);
+    //  mSignOutButtons = findViewById(R.id.plus_sign_out_buttons);
     }
 
     private void populateAutoComplete() {
         getLoaderManager().initLoader(0, null, this);
+    }
+
+    private void attemptFBLogin() {
+        ParseFacebookUtils.logIn(this, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException err) {
+                if (user == null) {
+                    Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
+
+                    Context context = getApplicationContext();
+                    CharSequence text = "Uh oh. The user cancelled the Facebook login.";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+
+                } else if (user.isNew()) {
+                    Log.d("MyApp", "User signed up and logged in through Facebook!");
+
+                    Context context = getApplicationContext();
+                    CharSequence text = "User signed up and logged in through Facebook!";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+
+                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Log.d("MyApp", "User logged in through Facebook!");
+
+                    Context context = getApplicationContext();
+                    CharSequence text = "User logged in through Facebook!";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+
+                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
     }
 
     /**
@@ -308,24 +376,32 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         }
     }
 
+    // Added from Parse tutorial on FB integration
     @Override
-    protected void onPlusClientSignIn() {
-        //Set up sign out and disconnect buttons.
-        Button signOutButton = (Button) findViewById(R.id.plus_sign_out_button);
-        signOutButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signOut();
-            }
-        });
-        Button disconnectButton = (Button) findViewById(R.id.plus_disconnect_button);
-        disconnectButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                revokeAccess();
-            }
-        });
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+       super.onActivityResult(requestCode, resultCode, data);
+       ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
     }
+
+      @Override
+      protected void onPlusClientSignIn() {
+      /*    //Set up sign out and disconnect buttons.
+          Button signOutButton = (Button) findViewById(R.id.plus_sign_out_button);
+          signOutButton.setOnClickListener(new OnClickListener() {
+              @Override
+              public void onClick(View view) {
+                  signOut();
+              }
+          });
+          Button disconnectButton = (Button) findViewById(R.id.plus_disconnect_button);
+          disconnectButton.setOnClickListener(new OnClickListener() {
+              @Override
+              public void onClick(View view) {
+                  revokeAccess();
+              }
+          });
+      */
+      }
 
     @Override
     protected void onPlusClientBlockingUI(boolean show) {
@@ -334,12 +410,13 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
 
     @Override
     protected void updateConnectButtonState() {
-        //TODO: Update this logic to also handle the user logged in by email.
+   /*     //TODO: Update this logic to also handle the user logged in by email.
         boolean connected = getPlusClient().isConnected();
 
         mSignOutButtons.setVisibility(connected ? View.VISIBLE : View.GONE);
         mPlusSignInButton.setVisibility(connected ? View.GONE : View.VISIBLE);
         mEmailLoginFormView.setVisibility(connected ? View.GONE : View.VISIBLE);
+   */
     }
 
     @Override
