@@ -111,6 +111,15 @@
                     android:layout_marginTop="30dp"
                     />
 
+                <Button
+                    android:background="@drawable/twitterlogin"
+                    android:id="@+id/ourTwitterButton"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="30dp"
+                    />
+
      <!--           <com.google.android.gms.common.SignInButton
                     android:id="@+id/plus_sign_in_button"
                     android:layout_width="match_parent"

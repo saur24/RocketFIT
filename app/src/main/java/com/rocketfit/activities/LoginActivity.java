@@ -34,6 +34,7 @@ import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
@@ -74,6 +75,8 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         Parse.initialize(this, "UjyPdUeq0paST1N1ak5ByZw2a9hLWt8qpAvCG407", "1NH9jcbeKsZTQY7NV6BrbGrhE0PCwyXvYpYYJZwP");
 
         ParseFacebookUtils.initialize("844747758892958");
+
+        ParseTwitterUtils.initialize("m2pJ8sVhK9Op5IpDEMFqAbrzp", "kzf5u8iMkBe6zvXdCPnAuz799rh9c07MYQsODwqGxsgtAOhwKC");
 
         ParseUser currentUser = ParseUser.getCurrentUser();
 
@@ -143,6 +146,14 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             }
         });
 
+        Button mTwitterButton = (Button) findViewById(R.id.ourTwitterButton);
+        mTwitterButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptTwitterLogin();
+            }
+        });
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         mEmailLoginFormView = findViewById(R.id.email_login_form);
@@ -196,6 +207,51 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
                 }
             }
         });
+    }
+
+    public void attemptTwitterLogin() {
+        ParseTwitterUtils.logIn(this, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException err) {
+                if (user == null) {
+                    Log.d("MyApp", "Uh oh. The user cancelled the Twitter login.");
+
+                    Context context = getApplicationContext();
+                    CharSequence text = "Uh oh. The user cancelled the Twitter login.";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                } else if (user.isNew()) {
+                    Log.d("MyApp", "User signed up and logged in through Twitter!");
+
+                    Context context = getApplicationContext();
+                    CharSequence text = "User signed up and logged in through Twitter!";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+
+                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Log.d("MyApp", "User logged in through Twitter!");
+
+                    Context context = getApplicationContext();
+                    CharSequence text = "User logged in through Twitter!";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+
+                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
+
     }
 
     /**
