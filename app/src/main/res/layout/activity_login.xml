@@ -73,7 +73,7 @@
                         style="?android:textAppearanceSmall"
                         android:layout_width="175dp"
                         android:layout_height="match_parent"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="10dp"
                         android:text="@string/action_sign_in"
                         android:textStyle="bold" />
 
@@ -82,7 +82,7 @@
                         style="?android:textAppearanceSmall"
                         android:layout_width="175dp"
                         android:layout_height="match_parent"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="10dp"
                         android:text="@string/action_register"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -92,7 +92,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="----------------OR---------------- "
-                    android:layout_marginTop="16dp" />
+                    android:layout_marginTop="10dp" />
 
                 <!--<com.facebook.widget.LoginButton-->
                 <!--android:id="@+id/authButton"-->
@@ -108,7 +108,7 @@
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="10dp"
                     />
 
                 <Button
@@ -117,7 +117,7 @@
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="10dp"
                     />
 
      <!--           <com.google.android.gms.common.SignInButton
