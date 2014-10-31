@@ -25,7 +25,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
+import com.facebook.Request;
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -38,6 +44,10 @@ import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -79,7 +89,6 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         ParseTwitterUtils.initialize("m2pJ8sVhK9Op5IpDEMFqAbrzp", "kzf5u8iMkBe6zvXdCPnAuz799rh9c07MYQsODwqGxsgtAOhwKC");
 
         ParseUser currentUser = ParseUser.getCurrentUser();
-
 
         if (currentUser != null) {
             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
@@ -158,6 +167,7 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         mProgressView = findViewById(R.id.login_progress);
         mEmailLoginFormView = findViewById(R.id.email_login_form);
     //  mSignOutButtons = findViewById(R.id.plus_sign_out_buttons);
+
     }
 
     private void populateAutoComplete() {
@@ -165,41 +175,23 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
     }
 
     private void attemptFBLogin() {
-        ParseFacebookUtils.logIn(this, new LogInCallback() {
+
+        List<String> permissions = Arrays.asList("public_profile", "user_friends", "user_about_me",
+                "user_relationships", "user_birthday", "user_location", "email");
+        ParseFacebookUtils.logIn(permissions, this, new LogInCallback() {
             @Override
             public void done(ParseUser user, ParseException err) {
                 if (user == null) {
                     Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
 
-                    Context context = getApplicationContext();
-                    CharSequence text = "Uh oh. The user cancelled the Facebook login.";
-                    int duration = Toast.LENGTH_SHORT;
-
-                    Toast toast = Toast.makeText(context, text, duration);
-                    toast.show();
-
                 } else if (user.isNew()) {
                     Log.d("MyApp", "User signed up and logged in through Facebook!");
-
-                    Context context = getApplicationContext();
-                    CharSequence text = "User signed up and logged in through Facebook!";
-                    int duration = Toast.LENGTH_SHORT;
-
-                    Toast toast = Toast.makeText(context, text, duration);
-                    toast.show();
 
                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                     startActivity(intent);
                     finish();
                 } else {
                     Log.d("MyApp", "User logged in through Facebook!");
-
-                    Context context = getApplicationContext();
-                    CharSequence text = "User logged in through Facebook!";
-                    int duration = Toast.LENGTH_SHORT;
-
-                    Toast toast = Toast.makeText(context, text, duration);
-                    toast.show();
 
                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                     startActivity(intent);
@@ -216,34 +208,14 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
                 if (user == null) {
                     Log.d("MyApp", "Uh oh. The user cancelled the Twitter login.");
 
-                    Context context = getApplicationContext();
-                    CharSequence text = "Uh oh. The user cancelled the Twitter login.";
-                    int duration = Toast.LENGTH_SHORT;
-
-                    Toast toast = Toast.makeText(context, text, duration);
-                    toast.show();
                 } else if (user.isNew()) {
                     Log.d("MyApp", "User signed up and logged in through Twitter!");
-
-                    Context context = getApplicationContext();
-                    CharSequence text = "User signed up and logged in through Twitter!";
-                    int duration = Toast.LENGTH_SHORT;
-
-                    Toast toast = Toast.makeText(context, text, duration);
-                    toast.show();
 
                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                     startActivity(intent);
                     finish();
                 } else {
                     Log.d("MyApp", "User logged in through Twitter!");
-
-                    Context context = getApplicationContext();
-                    CharSequence text = "User logged in through Twitter!";
-                    int duration = Toast.LENGTH_SHORT;
-
-                    Toast toast = Toast.makeText(context, text, duration);
-                    toast.show();
 
                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                     startActivity(intent);
@@ -273,41 +245,75 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         user.setPassword(password);
         user.setEmail(email);
 
+        boolean cancel = false;
+        View focusView = null;
+
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
         }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
-
+            focusView = mEmailView;
+            cancel = true;
         } else if (!isEmailValid(email)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
-
+            focusView = mEmailView;
+            cancel = true;
         }
-        user.signUpInBackground(new SignUpCallback() {
-            public void done(ParseException e) {
-                if (e == null) {
-                    // Hooray! Let them use the app now.
-                    Context context = getApplicationContext();
-                    CharSequence text = "You have successfully signed up, CONGRATS DUDE!";
-                    int duration = Toast.LENGTH_SHORT;
 
-                    Toast toast = Toast.makeText(context, text, duration);
-                    toast.show();
-                } else {
-                    // Sign up didn't succeed. Look at the ParseException
-                    // to figure out what went wrong
-                    Context context = getApplicationContext();
-                    CharSequence text = "ERROR SIGNING UP. GET THE FUCK OUT!";
-                    int duration = Toast.LENGTH_SHORT;
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
 
-                    Toast toast = Toast.makeText(context, text, duration);
-                    toast.show();
+            user.signUpInBackground(new SignUpCallback() {
+                public void done(ParseException e) {
+                    if (e == null) {
+                        // Hooray! Let them use the app now.
+
+                        AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
+                        builder1.setMessage("You have successfully registered. Please proceed to sign in!");
+                        builder1.setCancelable(true);
+                        builder1.setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                        AlertDialog alert1 = builder1.create();
+                        alert1.show();
+
+                    } else {
+                        // Sign up didn't succeed. Look at the ParseException
+                        // to figure out what went wrong
+                        // Log.d("myapp", e.toString());
+
+                        if (e.getCode() == ParseException.USERNAME_TAKEN) {
+                            AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
+                            builder1.setMessage(e.toString().substring(26));
+                            builder1.setCancelable(true);
+                            builder1.setPositiveButton("OK",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            dialog.cancel();
+                                        }
+                                    });
+
+                            AlertDialog alert1 = builder1.create();
+                            alert1.show();
+                        }
+
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -358,24 +364,26 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
                  public void done(ParseUser user, ParseException e) {
                      if (user != null) {
                          // Hooray! The user is logged in.
-                         Context context = getApplicationContext();
-                         CharSequence text = "Successful Login!";
-                         int duration = Toast.LENGTH_SHORT;
-
-                         Toast toast = Toast.makeText(context, text, duration);
-                         toast.show();
 
                          Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                          startActivity(intent);
                          finish();
                      } else {
                          // Login failed. Look at the ParseException to see what happened.
-                         Context context = getApplicationContext();
-                         CharSequence text = "Login failed bitch!";
-                         int duration = Toast.LENGTH_SHORT;
 
-                         Toast toast = Toast.makeText(context, text, duration);
-                         toast.show();
+                         AlertDialog.Builder builder1 = new AlertDialog.Builder(LoginActivity.this);
+                         builder1.setMessage(e.toString().substring(26));
+                         builder1.setCancelable(true);
+                         builder1.setPositiveButton("OK",
+                                 new DialogInterface.OnClickListener() {
+                                     public void onClick(DialogInterface dialog, int id) {
+                                         dialog.cancel();
+                                     }
+                                 });
+
+                         AlertDialog alert1 = builder1.create();
+                         alert1.show();
+
 
                          showProgress(false);
                      }

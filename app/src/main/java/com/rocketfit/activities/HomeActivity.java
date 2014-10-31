@@ -2,10 +2,13 @@ package com.rocketfit.activities;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,8 +18,17 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.facebook.Request;
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.model.GraphUser;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseUser;
 import com.rocketfit.adapters.ImageAdapter;
 import com.rocketfit.fragments.NavigationDrawerFragment;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import projects.rocketfit.R;
 
@@ -36,6 +48,13 @@ public class HomeActivity extends Activity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // Fetch Facebook user info if the session is active
+        Session session = ParseFacebookUtils.getSession();
+        if (session != null && session.isOpened()) {
+            makeMeRequest();
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
@@ -56,6 +75,70 @@ public class HomeActivity extends Activity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+    }
+
+    private void makeMeRequest() {
+        Request request = Request.newMeRequest(ParseFacebookUtils.getSession(),
+                new Request.GraphUserCallback() {
+                    @Override
+                    public void onCompleted(GraphUser user, Response response) {
+                        if (user != null) {
+                            // Create a JSON object to hold the profile info
+                            JSONObject userProfile = new JSONObject();
+                            try {
+                                // Populate the JSON object
+                                userProfile.put("facebookId", user.getId());
+                                userProfile.put("name", user.getName());
+                                if (user.getLocation().getProperty("name") != null) {
+                                    userProfile.put("location", (String) user
+                                            .getLocation().getProperty("name"));
+                                }
+                                if (user.getProperty("gender") != null) {
+                                    userProfile.put("gender",
+                                            (String) user.getProperty("gender"));
+                                }
+                                if (user.getBirthday() != null) {
+                                    userProfile.put("birthday",
+                                            user.getBirthday());
+                                }
+                                if (user.getProperty("relationship_status") != null) {
+                                    userProfile
+                                            .put("relationship_status",
+                                                    (String) user
+                                                            .getProperty("relationship_status"));
+                                }
+                                if (user.getProperty("email") != null) {
+                                    userProfile
+                                            .put("email",
+                                                    (String) user
+                                                            .getProperty("email"));
+                                }
+                                // Now add the data to the UI elements
+                                // ...
+//                                AlertDialog.Builder builder1 = new AlertDialog.Builder(HomeActivity.this);
+//                                builder1.setMessage(user.getBirthday());
+//                                builder1.setCancelable(true);
+//                                builder1.setPositiveButton("OK",
+//                                        new DialogInterface.OnClickListener() {
+//                                            public void onClick(DialogInterface dialog, int id) {
+//                                                dialog.cancel();
+//                                            }
+//                                        });
+//
+//                                AlertDialog alert1 = builder1.create();
+//                                alert1.show();
+
+                            } catch (JSONException e) {
+                                Log.d("My App",
+                                        "Error parsing returned user data.");
+                            }
+
+                        } else if (response.getError() != null) {
+                            // handle error
+                        }
+                    }
+                });
+        request.executeAsync();
     }
 
 
