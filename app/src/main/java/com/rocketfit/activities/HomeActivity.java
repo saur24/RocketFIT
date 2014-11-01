@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -23,6 +24,7 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.model.GraphUser;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.rocketfit.adapters.ImageAdapter;
 import com.rocketfit.fragments.NavigationDrawerFragment;
@@ -53,6 +55,12 @@ public class HomeActivity extends Activity
         Session session = ParseFacebookUtils.getSession();
         if (session != null && session.isOpened()) {
             makeMeRequest();
+        }
+
+        ParseTwitterUtils.getTwitter().getScreenName();
+        if (ParseTwitterUtils.getTwitter().getScreenName() != null) {
+            ParseUser.getCurrentUser().put("username", ParseTwitterUtils.getTwitter().getScreenName());
+            ParseUser.getCurrentUser().saveEventually();
         }
 
         super.onCreate(savedInstanceState);
@@ -128,6 +136,11 @@ public class HomeActivity extends Activity
 //                                AlertDialog alert1 = builder1.create();
 //                                alert1.show();
 
+                                ParseUser.getCurrentUser().put("email", user.getProperty("email"));
+                                // sets username to FB email address
+                                ParseUser.getCurrentUser().put("username", user.getProperty("email"));
+                                ParseUser.getCurrentUser().saveEventually();
+
                             } catch (JSONException e) {
                                 Log.d("My App",
                                         "Error parsing returned user data.");
@@ -196,6 +209,15 @@ public class HomeActivity extends Activity
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
+        }
+        if (id == R.id.action_logout) {
+            ParseUser.logOut();
+            ParseUser currentUser = ParseUser.getCurrentUser(); // this will now be null
+
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(intent);
+            finish();
+            //return true;
         }
         return super.onOptionsItemSelected(item);
     }
