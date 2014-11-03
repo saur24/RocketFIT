@@ -2,10 +2,7 @@ package com.rocketfit.activities;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -154,14 +151,26 @@ public class HomeActivity extends Activity
         request.executeAsync();
     }
 
-
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing com.rocketfit.fragments
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
+//        FragmentTransaction ft = getFragmentManager().beginTransaction();
+//
+//        switch (position) {
+//
+//            case 0:
+//                //RocketFIT
+//                break;
+//
+//            case 1:
+//                //Workout
+//                break;
+//
+//            case 2:
+//                break;
+//        }
+//        ft.replace(R.id.container, blah);
+//        ft.commit();
     }
 
     public void onSectionAttached(int number) {
@@ -175,9 +184,9 @@ public class HomeActivity extends Activity
             case 3:
                 mTitle = getString(R.string.title_section2);
                 break;
-            case 4:
-                mTitle = getString(R.string.title_section3);
-                break;
+//            case 4:
+//                mTitle = getString(R.string.title_section3);
+//                break;
         }
     }
 

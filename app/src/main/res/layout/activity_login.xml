@@ -71,8 +71,9 @@
                     <Button
                         android:id="@+id/email_sign_in_button"
                         style="?android:textAppearanceSmall"
-                        android:layout_width="175dp"
+                        android:layout_width="fill_parent"
                         android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:layout_marginTop="10dp"
                         android:text="@string/action_sign_in"
                         android:textStyle="bold" />
@@ -80,18 +81,20 @@
                     <Button
                         android:id="@+id/email_register_button"
                         style="?android:textAppearanceSmall"
-                        android:layout_width="175dp"
+                        android:layout_width="fill_parent"
                         android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:layout_marginTop="10dp"
                         android:text="@string/action_register"
                         android:textStyle="bold" />
+
                 </LinearLayout>
 
-              <TextView
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="----------------OR---------------- "
+                    android:text="----------------------OR----------------------"
                     android:layout_marginTop="10dp" />
 
                 <!--<com.facebook.widget.LoginButton-->
