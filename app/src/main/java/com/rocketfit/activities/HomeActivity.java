@@ -3,8 +3,13 @@ package com.rocketfit.activities;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.facebook.Request;
@@ -28,6 +34,11 @@ import com.rocketfit.fragments.NavigationDrawerFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import projects.rocketfit.R;
 
@@ -102,16 +113,6 @@ public class HomeActivity extends Activity
                                     userProfile.put("gender",
                                             (String) user.getProperty("gender"));
                                 }
-                                if (user.getBirthday() != null) {
-                                    userProfile.put("birthday",
-                                            user.getBirthday());
-                                }
-                                if (user.getProperty("relationship_status") != null) {
-                                    userProfile
-                                            .put("relationship_status",
-                                                    (String) user
-                                                            .getProperty("relationship_status"));
-                                }
                                 if (user.getProperty("email") != null) {
                                     userProfile
                                             .put("email",
@@ -153,24 +154,23 @@ public class HomeActivity extends Activity
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing com.rocketfit.fragments
-//        FragmentTransaction ft = getFragmentManager().beginTransaction();
-//
-//        switch (position) {
-//
-//            case 0:
-//                //RocketFIT
-//                break;
-//
-//            case 1:
-//                //Workout
-//                break;
-//
-//            case 2:
-//                break;
-//        }
-//        ft.replace(R.id.container, blah);
-//        ft.commit();
+        switch (position) {
+
+            case 0:
+               //RocketFIT
+                break;
+
+            case 1:
+                //Profile
+                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                startActivity(intent);
+                finish();
+                break;
+
+            case 2:
+                //Workout
+                break;
+        }
     }
 
     public void onSectionAttached(int number) {
@@ -184,9 +184,9 @@ public class HomeActivity extends Activity
             case 3:
                 mTitle = getString(R.string.title_section2);
                 break;
-//            case 4:
-//                mTitle = getString(R.string.title_section3);
-//                break;
+            case 4:
+                mTitle = getString(R.string.title_section3);
+                break;
         }
     }
 
@@ -225,6 +225,7 @@ public class HomeActivity extends Activity
 
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(intent);
+
             finish();
             //return true;
         }
