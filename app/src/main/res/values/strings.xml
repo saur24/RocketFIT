@@ -16,5 +16,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_profile">ProfileActivity</string>
     <string name="title_activity_exercise">ExerciseActivity</string>
+    <string name="tab_one">Tab One</string>
+    <string name="tab_two">Tab Two</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

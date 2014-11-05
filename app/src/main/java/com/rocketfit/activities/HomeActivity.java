@@ -141,6 +141,28 @@ public class HomeActivity extends Activity
         request.executeAsync();
     }
 
+    private void updateViewsWithProfileInfo() {
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser.get("profile") != null) {
+            JSONObject userProfile = currentUser.getJSONObject("profile");
+            try {
+                if (userProfile.getString("facebookId") != null) {
+                    String facebookId = userProfile.get("facebookId")
+                            .toString();
+                    //userProfilePictureView.setProfileId(facebookId);
+                } else {
+                    // Show the default, blank user profile picture
+                    //userProfilePictureView.setProfileId(null);
+                }
+                // Set additional UI elements
+                // ...
+            } catch (JSONException e) {
+                // handle error
+            }
+
+        }
+    }
+
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         switch (position) {
