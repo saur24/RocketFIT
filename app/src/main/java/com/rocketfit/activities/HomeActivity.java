@@ -3,13 +3,8 @@ package com.rocketfit.activities;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.facebook.Request;
@@ -34,11 +28,6 @@ import com.rocketfit.fragments.NavigationDrawerFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import projects.rocketfit.R;
 
@@ -162,13 +151,19 @@ public class HomeActivity extends Activity
 
             case 1:
                 //Profile
-                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
-                startActivity(intent);
+                Intent profile = new Intent(getApplicationContext(), ProfileActivity.class);
+                startActivity(profile);
                 finish();
                 break;
 
             case 2:
                 //Workout
+                Intent workout = new Intent(getApplicationContext(), WorkoutActivity.class);
+                startActivity(workout);
+                finish();
+                break;
+            case 3:
+                //Help/Tutorials
                 break;
         }
     }
