@@ -175,14 +175,12 @@ public class HomeActivity extends Activity
                 //Profile
                 Intent profile = new Intent(getApplicationContext(), ProfileActivity.class);
                 startActivity(profile);
-                finish();
                 break;
 
             case 2:
                 //Workout
                 Intent workout = new Intent(getApplicationContext(), WorkoutActivity.class);
                 startActivity(workout);
-                finish();
                 break;
             case 3:
                 //Help/Tutorials

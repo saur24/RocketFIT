@@ -1,16 +1,22 @@
 package com.rocketfit.activities;
 
 import android.app.Activity;
+import android.app.TaskStackBuilder;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
+import android.support.v4.app.NavUtils;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -20,6 +26,7 @@ import com.rocketfit.fragments.TabOneFragment;
 import com.rocketfit.fragments.TabThreeFragment;
 import com.rocketfit.fragments.TabTwoFragment;
 import android.widget.TabHost.OnTabChangeListener;
+import android.widget.Toast;
 
 
 import projects.rocketfit.R;
@@ -27,34 +34,41 @@ import projects.rocketfit.R;
 public class ProfileActivity extends FragmentActivity {
     // Attempt to pull facebook shit
     private ProfilePictureView profilePictureView;
+    private TextView memberSinceView;
     private TextView userNameView;
     private ImageView profileImage;
     private FragmentTabHost mTabHost;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        profileImage = (ImageView) findViewById(R.id.profile_image);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
+        profileImage = (ImageView) findViewById(R.id.profile_image);
+        userNameView = (TextView) findViewById(R.id.userNameView);
+        userNameView.setText("David Hritz");
+        memberSinceView = (TextView) findViewById(R.id.memberSinceView);
+        memberSinceView.setText("Member since xx/xx/xxxx");
 
         // ProfilePictureView profilePicture = (ProfilePictureView) findViewById(R.id.selection_profile_pic);
-
         // Attempt to pull facebook shit
 
         mTabHost = (FragmentTabHost) findViewById(android.R.id.tabhost);
         mTabHost.setup(this, getSupportFragmentManager(), android.R.id.tabcontent);
 
         mTabHost.addTab(
-                mTabHost.newTabSpec("tab1").setIndicator("Recent Workouts", null),
+                mTabHost.newTabSpec("tab1").setIndicator("Recent", null),
                 TabOneFragment.class, null);
         mTabHost.addTab(
-                mTabHost.newTabSpec("tab2").setIndicator("Stats", null),
+                mTabHost.newTabSpec("tab2").setIndicator("Friends", null),
                 TabTwoFragment.class, null);
         mTabHost.addTab(
-                mTabHost.newTabSpec("tab3").setIndicator("Friends", null),
+                mTabHost.newTabSpec("tab3").setIndicator("Awards", null),
+                TabThreeFragment.class, null);
+        mTabHost.addTab(
+                mTabHost.newTabSpec("tab4").setIndicator("Stats", null),
                 TabThreeFragment.class, null);
     }
 
@@ -74,6 +88,11 @@ public class ProfileActivity extends FragmentActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+
+        if (id == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
             return true;
         }
 

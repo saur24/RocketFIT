@@ -2,6 +2,7 @@ package com.rocketfit.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +16,8 @@ public class WorkoutActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout);
+
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         //ImageButton exerciseButton = (ImageButton) findViewById(R.id.exerciseButton);
 
@@ -40,6 +43,11 @@ public class WorkoutActivity extends Activity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+
+        if (id == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
             return true;
         }
 
