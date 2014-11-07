@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/recentWorkouts"
         android:layout_gravity="center_horizontal"
+        android:paddingLeft="10dp"
         android:textColor="#000000"        />
 
 </LinearLayout>

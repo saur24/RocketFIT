@@ -1,7 +1,9 @@
 package com.rocketfit.activities;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,16 +20,22 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SearchView;
 import android.widget.TabHost;
 import android.widget.TextView;
 
 import com.facebook.widget.ProfilePictureView;
+import com.parse.ParseUser;
 import com.rocketfit.fragments.TabOneFragment;
 import com.rocketfit.fragments.TabThreeFragment;
 import com.rocketfit.fragments.TabTwoFragment;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.Toast;
 
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import projects.rocketfit.R;
 
@@ -46,11 +54,21 @@ public class ProfileActivity extends FragmentActivity {
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
+        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        Date date = currentUser.getCreatedAt();
+        String sDate = df.format(date);
+
+        Toast.makeText(ProfileActivity.this, sDate, Toast.LENGTH_SHORT).show();
+
         profileImage = (ImageView) findViewById(R.id.profile_image);
         userNameView = (TextView) findViewById(R.id.userNameView);
         userNameView.setText("David Hritz");
         memberSinceView = (TextView) findViewById(R.id.memberSinceView);
         memberSinceView.setText("Member since xx/xx/xxxx");
+
+
 
         // ProfilePictureView profilePicture = (ProfilePictureView) findViewById(R.id.selection_profile_pic);
         // Attempt to pull facebook shit
@@ -75,7 +93,16 @@ public class ProfileActivity extends FragmentActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
+        getMenuInflater().inflate(R.menu.menu_profile, menu);
+
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+       // searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+
         return true;
     }
 
@@ -93,6 +120,17 @@ public class ProfileActivity extends FragmentActivity {
 
         if (id == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
+            return true;
+        }
+
+        if (id == R.id.action_search) {
+
+            return true;
+        }
+
+        if (id == R.id.action_edit) {
+            Intent workout = new Intent(getApplicationContext(), WorkoutActivity.class);
+            startActivity(workout);
             return true;
         }
 
