@@ -127,6 +127,7 @@ public class HomeActivity extends Activity
                                 // sets username to FB email address
                                 ParseUser.getCurrentUser().put("username", user.getProperty("email"));
                                 ParseUser.getCurrentUser().put("fullname", user.getName());
+
                                 String fullName = user.getName();
                                 String[] names = fullName.split(" ");
 

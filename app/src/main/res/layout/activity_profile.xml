@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="25dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
+            android:text="Click edit icon to add name"
             android:id="@+id/userNameView" />
 
         <TextView
