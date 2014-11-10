@@ -1,6 +1,7 @@
 package com.rocketfit.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
@@ -18,12 +19,6 @@ public class WorkoutActivity extends Activity {
         setContentView(R.layout.activity_workout);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-
-        //ImageButton exerciseButton = (ImageButton) findViewById(R.id.exerciseButton);
-
-        //handle entering from tapping NFC tag
-
-        //need icons for Run or Exercise
     }
 
 
@@ -57,10 +52,15 @@ public class WorkoutActivity extends Activity {
     public void onExerciseSelected(View view) {
         //exercise button was pressed
         Toast.makeText(WorkoutActivity.this, "exercise", Toast.LENGTH_SHORT).show();
+        Intent exercise = new Intent(getApplicationContext(), ExerciseActivity.class);
+        startActivity(exercise);
     }
 
     public void onRunSelected(View view) {
         //run button was pressed
         Toast.makeText(WorkoutActivity.this, "run", Toast.LENGTH_SHORT).show();
+//        Intent run = new Intent(getApplicationContext(), RunActivity.class);
+//        startActivity(run);
+//        finish();
     }
 }
