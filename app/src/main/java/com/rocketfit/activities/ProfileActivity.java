@@ -184,6 +184,17 @@ public class ProfileActivity extends FragmentActivity {
             return true;
         }
 
+        if (id == R.id.action_logout) {
+            ParseUser.logOut();
+            ParseUser currentUser = ParseUser.getCurrentUser(); // this will now be null
+
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(intent);
+
+            finish();
+            //return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 }

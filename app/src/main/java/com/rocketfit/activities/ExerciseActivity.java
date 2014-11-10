@@ -1,10 +1,13 @@
 package com.rocketfit.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.parse.ParseUser;
 
 import projects.rocketfit.R;
 
@@ -42,6 +45,17 @@ public class ExerciseActivity extends Activity {
         if (id == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
             return true;
+        }
+
+        if (id == R.id.action_logout) {
+            ParseUser.logOut();
+            ParseUser currentUser = ParseUser.getCurrentUser(); // this will now be null
+
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(intent);
+
+            finish();
+            //return true;
         }
 
         return super.onOptionsItemSelected(item);
