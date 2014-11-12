@@ -48,6 +48,9 @@ public class HomeActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        ParseFacebookUtils.initialize("844747758892958");
+        ParseTwitterUtils.initialize("m2pJ8sVhK9Op5IpDEMFqAbrzp", "kzf5u8iMkBe6zvXdCPnAuz799rh9c07MYQsODwqGxsgtAOhwKC");
+
         // Fetch Facebook user info if the session is active
         Session session = ParseFacebookUtils.getSession();
         if (session != null && session.isOpened()) {

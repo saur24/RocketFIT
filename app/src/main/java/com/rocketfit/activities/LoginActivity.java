@@ -83,9 +83,7 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         setContentView(R.layout.activity_login);
 
         Parse.initialize(this, "UjyPdUeq0paST1N1ak5ByZw2a9hLWt8qpAvCG407", "1NH9jcbeKsZTQY7NV6BrbGrhE0PCwyXvYpYYJZwP");
-
         ParseFacebookUtils.initialize("844747758892958");
-
         ParseTwitterUtils.initialize("m2pJ8sVhK9Op5IpDEMFqAbrzp", "kzf5u8iMkBe6zvXdCPnAuz799rh9c07MYQsODwqGxsgtAOhwKC");
 
         ParseUser currentUser = ParseUser.getCurrentUser();
@@ -176,6 +174,9 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
     private void attemptFBLogin() {
 
         List<String> permissions = Arrays.asList("public_profile", "user_friends", "email");
+
+        showProgress(true);
+
         ParseFacebookUtils.logIn(permissions, this, new LogInCallback() {
             @Override
             public void done(ParseUser user, ParseException err) {
@@ -200,6 +201,9 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
     }
 
     public void attemptTwitterLogin() {
+
+        showProgress(true);
+
         ParseTwitterUtils.logIn(this, new LogInCallback() {
             @Override
             public void done(ParseUser user, ParseException err) {

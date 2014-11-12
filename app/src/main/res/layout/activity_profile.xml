@@ -19,7 +19,6 @@
         android:id="@+id/linearLayout">
 
         <ImageView
-            android:background="@drawable/sample_4"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_gravity="center_horizontal"
