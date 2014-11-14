@@ -4,25 +4,37 @@
     <string name="app_name">RocketFIT</string>
     <string name="title_activity_home">RocketFIT</string>
     <string name="title_section1">Profile</string>
-    <string name="title_section2">Workout</string>
-    <string name="title_section3">Help/Tutorials</string>
+    <string name="title_section2">Run/Walk</string>
+    <string name="title_section3">Weights</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
     <string name="action_logout">Logout</string>
+
     <string name="facebook_id">844747758892958</string>
+
     <string name="title_activity_workout">Workout</string>
+
     <string name="hello_world">Hello world!</string>
+
     <string name="title_activity_profile">Profile</string>
     <string name="title_activity_exercise">Exercise</string>
+
     <string name="tab_one">Tab One</string>
     <string name="tab_two">Tab Two</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <string name="search_hint">Search other users</string>
     <string name="action_search">Search</string>
     <string name="action_edit">Search</string>
     <string name="title_activity_searchable">Search</string>
     <string name="title_activity_friend">Search Result</string>
+
+    <string name="machine_name">Machine Name</string>
+    <string name="reps">Reps</string>
+    <string name="weight">Weight</string>
 
 </resources>
