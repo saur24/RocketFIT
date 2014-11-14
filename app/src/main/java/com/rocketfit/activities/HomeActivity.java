@@ -151,7 +151,7 @@ public class HomeActivity extends Activity
         request.executeAsync();
     }
 
-    private void updateViewsWithProfileInfo() {
+    private void updateViewsWithProfsileInfo() {
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser.get("profile") != null) {
             JSONObject userProfile = currentUser.getJSONObject("profile");

@@ -22,6 +22,7 @@
     <string name="search_hint">Search other users</string>
     <string name="action_search">Search</string>
     <string name="action_edit">Search</string>
-    <string name="title_activity_searchable">SearchableActivity</string>
+    <string name="title_activity_searchable">Search</string>
+    <string name="title_activity_friend">Search Result</string>
 
 </resources>
