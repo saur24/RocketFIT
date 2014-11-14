@@ -12,8 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.Toast;
 
 import com.facebook.Request;
@@ -23,7 +21,6 @@ import com.facebook.model.GraphUser;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
-import com.rocketfit.adapters.ImageAdapter;
 import com.rocketfit.fragments.NavigationDrawerFragment;
 
 import org.json.JSONException;
@@ -173,10 +170,10 @@ public class HomeActivity extends Activity
         }
     }
 
-    public void onExerciseSelected(View view) {
+    public void onWeightsSelected(View view) {
         //exercise button was pressed
-        Toast.makeText(HomeActivity.this, "exercise", Toast.LENGTH_SHORT).show();
-        Intent exercise = new Intent(getApplicationContext(), ExerciseActivity.class);
+        Toast.makeText(HomeActivity.this, "weights", Toast.LENGTH_SHORT).show();
+        Intent exercise = new Intent(getApplicationContext(), WeightsActivity.class);
         startActivity(exercise);
     }
 
@@ -203,9 +200,9 @@ public class HomeActivity extends Activity
                 break;
 
             case 2:
-                //Workout
-                Intent workout = new Intent(getApplicationContext(), WorkoutActivity.class);
-                startActivity(workout);
+                //Weights
+                //Intent weights = new Intent(getApplicationContext(), WeightsActivity.class);
+                //startActivity(Weights);
                 break;
             case 3:
                 //Help/Tutorials

@@ -61,16 +61,7 @@
         <activity
             android:name="com.rocketfit.activities.HomeActivity"
             android:screenOrientation="portrait"
-            android:label="@string/title_activity_home"></activity>
-        <activity
-            android:name="com.rocketfit.activities.WorkoutActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/title_activity_workout"
-            android:parentActivityName="com.rocketfit.activities.HomeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.rocketfit.activities.HomeActivity" />
-
+            android:label="@string/title_activity_home">
 
         </activity>
         <activity
@@ -87,13 +78,13 @@
                 android:value="com.rocketfit.activities.SearchableActivity" />
         </activity>
         <activity
-            android:name="com.rocketfit.activities.ExerciseActivity"
+            android:name="com.rocketfit.activities.WeightsActivity"
             android:screenOrientation="portrait"
             android:label="@string/title_activity_exercise"
-            android:parentActivityName="com.rocketfit.activities.WorkoutActivity">
+            android:parentActivityName="com.rocketfit.activities.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.rocketfit.activities.WorkoutActivity" />
+                android:value="com.rocketfit.activities.HomeActivity" />
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 

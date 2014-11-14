@@ -36,7 +36,7 @@
                 android:layout_height="41dp"
                 android:id="@+id/exerciseButton"
                 android:layout_weight="0.50"
-                android:onClick="onExerciseSelected"/>
+                android:onClick="onWeightsSelected" />
         </LinearLayout>
 
         <LinearLayout

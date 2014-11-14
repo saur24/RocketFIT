@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -15,22 +17,27 @@ import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.parse.ParseUser;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
-import com.parse.ParseUser;
-
 import projects.rocketfit.R;
 
-public class ExerciseActivity extends Activity {
+public class WeightsActivity extends Activity {
 
     public static final String MIME_TEXT_PLAIN = "text/plain";
     public static final String TAG = "NfcDemo";
 
-    private TextView mTextView;
+    private TextView mMachineName;
     private NfcAdapter mNfcAdapter;
+    private Spinner mSelectMachine;
 
     /**
      * @param activity The corresponding {@link Activity} requesting the foreground dispatch.
@@ -69,39 +76,36 @@ public class ExerciseActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_exercise);
+        setContentView(R.layout.activity_weights);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mTextView = (TextView) findViewById(R.id.hello);
+        mMachineName = (TextView) findViewById(R.id.machineName);
 
-        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        mSelectMachine = (Spinner) findViewById(R.id.selectMachine);
 
-//        if (mNfcAdapter == null) {
-//            // Do nothing
-//        }
-
-        if (!mNfcAdapter.isEnabled()) {
-            mTextView.setText("NFC is disabled.");
-        } else {
-            mTextView.setText("NFC is enabled?");
-        }
-
-        if (getIntent() != null)
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
             handleIntent(getIntent());
+        } else {
+            mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+            if (!mNfcAdapter.isEnabled()) {
+                //NFC is disabled
+                mMachineName.setText("Please select a machine.");
+            } else {
+                //NFC is enabled
+                mMachineName.setText("Please select a machine below, or tap one nearby.");
+            }
+        }
     }
 
     private void handleIntent(Intent intent) {
-        String action = intent.getAction();
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
 
-            String type = intent.getType();
-            if (MIME_TEXT_PLAIN.equals(type)) {
-                Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                new NdefReaderTask().execute(tag);
-            } else {
-                Log.d(TAG, "Wrong mime type: " + type);
-            }
+        String type = intent.getType();
+        if (MIME_TEXT_PLAIN.equals(type)) {
+            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            new NdefReaderTask().execute(tag);
+        } else {
+            Log.d(TAG, "Wrong mime type: " + type);
         }
     }
 
@@ -134,7 +138,7 @@ public class ExerciseActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_exercise, menu);
+        getMenuInflater().inflate(R.menu.menu_weights, menu);
         return true;
     }
 
@@ -224,8 +228,24 @@ public class ExerciseActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             if (result != null) {
-                mTextView.setText("Read content: " + result);
+                //set machine name
+                mMachineName.setText(result);
+            }
+            //set imageview to drawable of machine
+            String uri = "drawable/" + result;
+            int machineImageResource = getResources().getIdentifier(uri, null, getPackageName());
+            ImageView machineImage = (ImageView) findViewById(R.id.machinePic);
+            try {
+                Drawable machine = getResources().getDrawable(machineImageResource);
+                machineImage.setImageDrawable(machine);
+            } catch (Resources.NotFoundException e) {
+                Toast.makeText(WeightsActivity.this, "No image found.", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
+    public void addSet(View view) {
+        //add new set
+    }
 }
+
