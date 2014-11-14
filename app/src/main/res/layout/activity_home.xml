@@ -13,16 +13,45 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <GridView
-            android:id="@+id/gridView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:columnWidth="90dp"
-            android:numColumns="auto_fit"
-            android:verticalSpacing="10dp"
-            android:horizontalSpacing="10dp"
-            android:stretchMode="columnWidth"
-            android:gravity="center" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|top"
+            android:weightSum="1">
+
+            <ImageButton
+                android:background="@drawable/start_run"
+                android:scaleType="fitCenter"
+                android:layout_width="20dp"
+                android:layout_height="41dp"
+                android:id="@+id/imageButton"
+                android:layout_weight="0.50"
+                android:onClick="onRunSelected" />
+
+            <ImageButton
+                android:background="@drawable/start_workout"
+                android:scaleType="fitCenter"
+                android:layout_width="20dp"
+                android:layout_height="41dp"
+                android:id="@+id/exerciseButton"
+                android:layout_weight="0.50"
+                android:onClick="onExerciseSelected"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="473dp"
+            android:layout_gravity="center_horizontal|bottom"
+            android:weightSum="1">
+
+            <CalendarView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/calendarView"
+                android:layout_gravity="center_horizontal" />
+        </LinearLayout>
 
     </FrameLayout>
 

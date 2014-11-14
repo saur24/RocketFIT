@@ -66,14 +66,14 @@ public class HomeActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        GridView gridview = (GridView) findViewById(R.id.gridView);
+        /*GridView gridview = (GridView) findViewById(R.id.gridView);
         gridview.setAdapter(new ImageAdapter(this));
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 Toast.makeText(HomeActivity.this, "" + position, Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -171,6 +171,21 @@ public class HomeActivity extends Activity
             }
 
         }
+    }
+
+    public void onExerciseSelected(View view) {
+        //exercise button was pressed
+        Toast.makeText(HomeActivity.this, "exercise", Toast.LENGTH_SHORT).show();
+        Intent exercise = new Intent(getApplicationContext(), ExerciseActivity.class);
+        startActivity(exercise);
+    }
+
+    public void onRunSelected(View view) {
+        //run button was pressed
+        Toast.makeText(HomeActivity.this, "run", Toast.LENGTH_SHORT).show();
+//        Intent run = new Intent(getApplicationContext(), RunActivity.class);
+//        startActivity(run);
+//        finish();
     }
 
     @Override
