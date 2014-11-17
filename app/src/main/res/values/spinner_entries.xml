@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="machines">
+        <item name="weight">Select a machine</item>
         <item name="cybex_rotary_torso">Cybex - Rotary Torso</item>
         <item name="free_weight_bench_press">Free Weight - Bench Press</item>
         <item name="free_weight_curls">Free Weight - Curls</item>
@@ -34,6 +35,7 @@
     </string-array>
 
     <string-array name="images">
+        <item>weight</item>
         <item>cybex_rotary_torso</item>
         <item>free_weight_bench_press</item>
         <item>free_weight_curls</item>

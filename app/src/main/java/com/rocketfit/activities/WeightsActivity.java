@@ -105,10 +105,10 @@ public class WeightsActivity extends Activity {
 
             if (mNfcAdapter == null) {
                 //NFC is disabled or phone doesn't have NFC
-                mMachineName.setText("Please select a machine.");
+                //mMachineName.setText("Please select a machine.");
             } else {
                 //NFC is enabled
-                mMachineName.setText("Please select a machine below, or tap one nearby.");
+                //mMachineName.setText("Please select a machine below, or tap one nearby.");
             }
             mSelectMachine.setVisibility(View.VISIBLE);
             mSelectMachine.setOnItemSelectedListener(new SpinnerOnItemSelectedListener());
@@ -117,10 +117,9 @@ public class WeightsActivity extends Activity {
 
     private void handleIntent(Intent intent) {
 
-        mSelectMachine.setVisibility(View.INVISIBLE);
-
         String type = intent.getType();
         if (MIME_TEXT_PLAIN.equals(type)) {
+            mSelectMachine.setVisibility(View.INVISIBLE);
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             new NdefReaderTask().execute(tag);
         } else {
@@ -331,9 +330,9 @@ public class WeightsActivity extends Activity {
         public void onItemSelected(AdapterView<?> parent, View view, int pos,
                                    long id) {
             String machineString = parent.getItemAtPosition(pos).toString();
-            Toast.makeText(parent.getContext(),
-                    "On Item Select : \n" + machineString,
-                    Toast.LENGTH_LONG).show();
+//            Toast.makeText(parent.getContext(),
+//                    "On Item Select : \n" + machineString,
+//                    Toast.LENGTH_LONG).show();
 
             mMachineName.setText(machineString);
 
@@ -341,7 +340,6 @@ public class WeightsActivity extends Activity {
             int machineImageResource = getResources().getIdentifier(resource, null, getPackageName());
             Drawable machine = getResources().getDrawable(machineImageResource);
             mMachineImage.setImageDrawable(machine);
-
         }
 
         @Override
