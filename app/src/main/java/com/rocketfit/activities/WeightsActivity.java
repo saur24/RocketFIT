@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -81,13 +82,13 @@ public class WeightsActivity extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         mMachineName = (TextView) findViewById(R.id.machineName);
-
         mSelectMachine = (Spinner) findViewById(R.id.selectMachine);
 
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
             handleIntent(getIntent());
         } else {
             mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
             if (!mNfcAdapter.isEnabled()) {
                 //NFC is disabled
                 mMachineName.setText("Please select a machine.");
@@ -95,6 +96,8 @@ public class WeightsActivity extends Activity {
                 //NFC is enabled
                 mMachineName.setText("Please select a machine below, or tap one nearby.");
             }
+            mSelectMachine.setVisibility(View.VISIBLE);
+            mSelectMachine.setOnItemSelectedListener(new SpinnerOnItemSelectedListener());
         }
     }
 
@@ -246,6 +249,24 @@ public class WeightsActivity extends Activity {
 
     public void addSet(View view) {
         //add new set
+    }
+
+    private class SpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> parent, View view, int pos,
+                                   long id) {
+
+            Toast.makeText(parent.getContext(),
+                    "On Item Select : \n" + parent.getItemAtPosition(pos).toString(),
+                    Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+
+        }
+
     }
 }
 

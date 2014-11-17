@@ -20,14 +20,18 @@
     <Spinner
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/selectMachine" />
+        android:id="@+id/selectMachine"
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/machinePic"
-        android:layout_width="200dp"
-        android:layout_height="250dp"
+        android:background="@drawable/weight"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
-        android:contentDescription="Machine Pic" />
+        android:contentDescription="Machine Pic"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp" />
 
 
     <LinearLayout
@@ -71,6 +75,12 @@
                 android:layout_gravity="center_horizontal"
                 android:text="Add a set"
                 android:onClick="addSet" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Submit sets"
+                android:id="@+id/button2" />
         </TableLayout>
     </ScrollView>
 
