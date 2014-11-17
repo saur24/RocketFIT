@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="machines">
+        <item name="cybex_rotary_torso">Cybex - Rotary Torso</item>
+        <item name="free_weight_bench_press">Free Weight - Bench Press</item>
+        <item name="free_weight_curls">Free Weight - Curls</item>
+        <item name="free_weight_dead_lifts">Free Weight - Dead Lifts</item>
+        <item name="free_weight_squats">Free Weight - Squats</item>
+        <item name="magnum_abdominal">Magnum - Abdominal</item>
+        <item name="magnum_arm_curl">Magnum - Arm Curl</item>
+        <item name="magnum_biangular_back_pulldown">Magnum - Biangular Back Pulldown</item>
+        <item name="magnum_biangular_chest_press">Magnum - Biangular Chest Press</item>
+        <item name="magnum_biangular_lat_pulldown">Magnum - Biangular Lat Pulldown</item>
+        <item name="magnum_biangular_lat_row">Magnum - Biangular Lat Row</item>
+        <item name="magnum_biangular_shoulder_press">Magnum - Biangular Shoulder Press</item>
+        <item name="magnum_lower_back">Magnum - Lower Back</item>
+        <item name="magnum_multi_hip">Magnum - Multi Hip</item>
+        <item name="magnum_pec_or_rear_delt">Magnum - Pec/Rear Delt</item>
+        <item name="magnum_seated_leg_curl">Magnum - Seated Leg Curl</item>
+        <item name="magnum_seated_leg_press">Magnum - Seated Leg Press</item>
+        <item name="magnum_tricep_extension">Magnum - Tricep Extension</item>
+        <item name="matrix_abdominal">Matrix - Abdominal</item>
+        <item name="matrix_arm_curl">Matrix - Arm Curl</item>
+        <item name="matrix_chest_press">Matrix - Chest Press</item>
+        <item name="matrix_hip_abduction">Matrix - Hip Abduction</item>
+        <item name="matrix_hip_adduction">Matrix - Hip Adduction</item>
+        <item name="matrix_leg_curl">Matrix - Leg Curl</item>
+        <item name="matrix_leg_extension">Matrix - Leg Extension</item>
+        <item name="matrix_pec_fly">Matrix - Pec Fly</item>
+        <item name="matrix_pullover">Matrix - Pullover</item>
+        <item name="matrix_seated_leg_press">Matrix - Seated Leg Press</item>
+        <item name="matrix_tricep_extension">Matrix - Tricep Extension</item>
+        <item name="matrix_tricep_press">Matrix - Tricep Press</item>
+    </string-array>
+</resources>

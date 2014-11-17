@@ -18,8 +18,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,7 +65,6 @@ public class WeightsActivity extends Activity {
         } catch (IntentFilter.MalformedMimeTypeException e) {
             throw new RuntimeException("Check your mime type.");
         }
-
         adapter.enableForegroundDispatch(activity, pendingIntent, filters, techList);
     }
 
@@ -81,24 +84,28 @@ public class WeightsActivity extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         mMachineName = (TextView) findViewById(R.id.machineName);
-
         mSelectMachine = (Spinner) findViewById(R.id.selectMachine);
 
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
             handleIntent(getIntent());
         } else {
             mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-            if (!mNfcAdapter.isEnabled()) {
-                //NFC is disabled
+
+            if (mNfcAdapter == null) {
+                //NFC is disabled or phone doesn't have NFC
                 mMachineName.setText("Please select a machine.");
             } else {
                 //NFC is enabled
                 mMachineName.setText("Please select a machine below, or tap one nearby.");
             }
+            mSelectMachine.setVisibility(View.VISIBLE);
+            mSelectMachine.setOnItemSelectedListener(new SpinnerOnItemSelectedListener());
         }
     }
 
     private void handleIntent(Intent intent) {
+
+        mSelectMachine.setVisibility(View.INVISIBLE);
 
         String type = intent.getType();
         if (MIME_TEXT_PLAIN.equals(type)) {
@@ -119,8 +126,9 @@ public class WeightsActivity extends Activity {
         /**
          * Call this before onPause, otherwise an IllegalArgumentException is thrown as well.
          */
-        stopForegroundDispatch(this, mNfcAdapter);
-
+        if (mNfcAdapter != null) {
+            stopForegroundDispatch(this, mNfcAdapter);
+        }
         super.onPause();
     }
 
@@ -132,7 +140,9 @@ public class WeightsActivity extends Activity {
          * It's important, that the activity is in the foreground (resumed). Otherwise
          * an IllegalStateException is thrown.
          */
-        setupForegroundDispatch(this, mNfcAdapter);
+        if (mNfcAdapter != null) {
+            setupForegroundDispatch(this, mNfcAdapter);
+        }
     }
 
     @Override
@@ -229,7 +239,9 @@ public class WeightsActivity extends Activity {
         protected void onPostExecute(String result) {
             if (result != null) {
                 //set machine name
-                mMachineName.setText(result);
+                String name = "string/" + result;
+                int nameId = getResources().getIdentifier(name, null, getPackageName());
+                mMachineName.setText(getResources().getString(nameId));
             }
             //set imageview to drawable of machine
             String uri = "drawable/" + result;
@@ -246,6 +258,45 @@ public class WeightsActivity extends Activity {
 
     public void addSet(View view) {
         //add new set
+
+        //create a new row to add
+        TableRow row = new TableRow(WeightsActivity.this);
+
+        //add Layouts to your new row
+        EditText reps   = new EditText(WeightsActivity.this);
+        EditText weight = new EditText(WeightsActivity.this);
+
+        // add reps/weights to your table
+        row.addView(reps);
+        row.addView(weight);
+
+        reps.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
+        weight.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
+
+        //add your new row to the TableLayout:
+        TableLayout table = (TableLayout) findViewById(R.id.workoutTable);
+        table.addView(row);
+
+    }
+
+    private class SpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> parent, View view, int pos,
+                                   long id) {
+
+            Toast.makeText(parent.getContext(),
+                    "On Item Select : \n" + parent.getItemAtPosition(pos).toString(),
+                    Toast.LENGTH_LONG).show();
+
+            //String machineString = parent.getItemAtPosition(pos)
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+
+        }
+
     }
 }
 

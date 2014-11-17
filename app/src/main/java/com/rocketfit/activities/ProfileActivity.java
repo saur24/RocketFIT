@@ -17,6 +17,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -48,6 +49,7 @@ import com.facebook.widget.ProfilePictureView;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -58,8 +60,10 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.Toast;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -68,161 +72,14 @@ import projects.rocketfit.R;
 
 public class ProfileActivity extends FragmentActivity {
     public static final int KITKAT_VALUE = 1002;
-    private static final int GALLERY = 1;
-    // messing around with image
     private static Bitmap Image = null;
     private static Bitmap rotateImage = null;
-    // Attempt to pull facebook shit
-    private ProfilePictureView profilePictureView;
     private TextView memberSinceView;
     private TextView userNameView;
     private FragmentTabHost mTabHost;
     private String mName;
-    private String pathToImage;
     private Uri profileImgUri;
     private ImageView profileImage;
-
-    public static int getOrientation(Context context, Uri photoUri) {
-        Cursor cursor = context.getContentResolver().query(photoUri,
-                new String[] { MediaStore.Images.ImageColumns.ORIENTATION },null, null, null);
-
-        if (cursor.getCount() != 1) {
-            return -1;
-        }
-        cursor.moveToFirst();
-        return cursor.getInt(0);
-    }
-
-    /**
-     * Get a file path from a Uri. This will get the the path for Storage Access
-     * Framework Documents, as well as the _data field for the MediaStore and
-     * other file-based ContentProviders.
-     *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @author paulburke
-     */
-    @TargetApi(19)
-    public static String getPath(final Context context, final Uri uri) {
-
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-
-        // DocumentProvider
-        if (isKitKat) {
-            if (DocumentsContract.isDocumentUri(context, uri)) {
-            // ExternalStorageProvider
-                if (isExternalStorageDocument(uri)) {
-                    final String docId = DocumentsContract.getDocumentId(uri);
-                    final String[] split = docId.split(":");
-                    final String type = split[0];
-
-                 if ("primary".equalsIgnoreCase(type)) {
-                        return Environment.getExternalStorageDirectory() + "/" + split[1];
-                    }
-
-                // TODO handle non-primary volumes
-            }
-            // DownloadsProvider
-            else if (isDownloadsDocument(uri)) {
-
-                final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-
-                return getDataColumn(context, contentUri, null, null);
-            }
-            // MediaProvider
-            else if (isMediaDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                Uri contentUri = null;
-                if ("image".equals(type)) {
-                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                } else if ("video".equals(type)) {
-                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                } else if ("audio".equals(type)) {
-                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                }
-
-                final String selection = "_id=?";
-                final String[] selectionArgs = new String[]{
-                        split[1]
-                };
-
-                return getDataColumn(context, contentUri, selection, selectionArgs);
-                }
-            }
-        }
-        // MediaStore (and general)
-        else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            return getDataColumn(context, uri, null, null);
-        }
-        // File
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            return uri.getPath();
-        }
-
-        return null;
-    }
-
-    /**
-     * Get the value of the data column for this Uri. This is useful for
-     * MediaStore Uris, and other file-based ContentProviders.
-     *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
-     * @param selectionArgs (Optional) Selection arguments used in the query.
-     * @return The value of the _data column, which is typically a file path.
-     */
-    public static String getDataColumn(Context context, Uri uri, String selection,
-                                       String[] selectionArgs) {
-
-        Cursor cursor = null;
-        final String column = "_data";
-        final String[] projection = {
-                column
-        };
-
-        try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                    null);
-            if (cursor != null && cursor.moveToFirst()) {
-                final int column_index = cursor.getColumnIndexOrThrow(column);
-                return cursor.getString(column_index);
-            }
-        } finally {
-            if (cursor != null)
-                cursor.close();
-        }
-        return null;
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is ExternalStorageProvider.
-     */
-    public static boolean isExternalStorageDocument(Uri uri) {
-        return "com.android.externalstorage.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is DownloadsProvider.
-     */
-    public static boolean isDownloadsDocument(Uri uri) {
-        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is MediaProvider.
-     */
-    public static boolean isMediaDocument(Uri uri) {
-        return "com.android.providers.media.documents".equals(uri.getAuthority());
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -268,15 +125,10 @@ public class ProfileActivity extends FragmentActivity {
         ParseUser currentUser = ParseUser.getCurrentUser();
         try { currentUser.fetch(); } catch (ParseException e) { Log.d("MyApp", e.toString()); }
 
-      //  Toast.makeText(ProfileActivity.this, currentUser.getString("firstname").toString(), Toast.LENGTH_SHORT).show();
-
         // Set the date format
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
         Date date = currentUser.getCreatedAt();
         String sDate = df.format(date);
-
-       // Toast.makeText(ProfileActivity.this, sDate, Toast.LENGTH_SHORT).show();
-        //Toast.makeText(ProfileActivity.this, currentUser.get("fullname").toString(), Toast.LENGTH_LONG).show();
 
         // Set member since ..... view
         memberSinceView.setText("Member since " + sDate);
@@ -287,17 +139,12 @@ public class ProfileActivity extends FragmentActivity {
         }
 
         if (currentUser.getString("fullname") == null) {
-        //    Toast.makeText(ProfileActivity.this, "hey sexy daaddyy", Toast.LENGTH_SHORT).show();
-
             userNameView.setText("(Click edit icon to add name)");
             userNameView.setTextColor(Color.GRAY);
         } else {
-         //   Toast.makeText(ProfileActivity.this, "hey sexy mama", Toast.LENGTH_SHORT).show();
-
             userNameView.setText(currentUser.get("fullname").toString());
         }
 
-        // ProfilePictureView profilePicture = (ProfilePictureView) findViewById(R.id.selection_profile_pic);
         mTabHost = (FragmentTabHost) findViewById(android.R.id.tabhost);
         mTabHost.setup(this, getSupportFragmentManager(), android.R.id.tabcontent);
 
@@ -451,33 +298,173 @@ public class ProfileActivity extends FragmentActivity {
         }
     }
 
-    protected void onResume() {
-        super.onResume();
-        String pImg, realPath;
+    private void saveImageToParse(Bitmap Image) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        Image.compress(Bitmap.CompressFormat.PNG, 50, stream);
+        byte[] data = stream.toByteArray();
 
-//        Toast.makeText(ProfileActivity.this, ParseUser.getCurrentUser().get("profileImage").toString(), Toast.LENGTH_SHORT).show();
-
-        if (ParseUser.getCurrentUser().get("profileImage") != null) {
-            pImg = ParseUser.getCurrentUser().get("profileImage").toString();
-            profileImgUri = Uri.parse(pImg);
-
-            try {
-                    if (Build.VERSION.SDK_INT < 19){
-                        realPath = getPath(getApplicationContext(), profileImgUri);
-                        Image = decodeSampledBitmapFromPath(realPath, 60, 60);
-                    } else {
-                        realPath = getPath(getApplicationContext(), profileImgUri);
-                        Image = decodeSampledBitmapFromPath(realPath, 60, 60);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            profileImage.setImageBitmap(Image);
-        } else {
-            profileImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher));
+        final ParseFile file = new ParseFile(data);
+        try{
+            file.save();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        ParseUser.getCurrentUser().put("fileImage", file);
+        try{
+            ParseUser.getCurrentUser().save();
+        } catch (ParseException e1){
+            e1.printStackTrace();
         }
     }
+
+    public static int getOrientation(Context context, Uri photoUri) {
+        Cursor cursor = context.getContentResolver().query(photoUri,
+                new String[] { MediaStore.Images.ImageColumns.ORIENTATION },null, null, null);
+
+        if (cursor.getCount() != 1) {
+            return -1;
+        }
+        cursor.moveToFirst();
+        return cursor.getInt(0);
+    }
+
+    protected void onResume() {
+        super.onResume();
+
+        new BitmapWorkerTask(profileImage).execute();
+    }
+
+    /**
+     * Get a file path from a Uri. This will get the the path for Storage Access
+     * Framework Documents, as well as the _data field for the MediaStore and
+     * other file-based ContentProviders.
+     *
+     * @param context The context.
+     * @param uri The Uri to query.
+     * @author paulburke
+     */
+    @TargetApi(19)
+    public static String getPath(final Context context, final Uri uri) {
+
+        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+
+        // DocumentProvider
+        if (isKitKat) {
+            if (DocumentsContract.isDocumentUri(context, uri)) {
+                // ExternalStorageProvider
+                if (isExternalStorageDocument(uri)) {
+                    final String docId = DocumentsContract.getDocumentId(uri);
+                    final String[] split = docId.split(":");
+                    final String type = split[0];
+
+                    if ("primary".equalsIgnoreCase(type)) {
+                        return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    }
+
+                    // TODO handle non-primary volumes
+                }
+                // DownloadsProvider
+                else if (isDownloadsDocument(uri)) {
+
+                    final String id = DocumentsContract.getDocumentId(uri);
+                    final Uri contentUri = ContentUris.withAppendedId(
+                            Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+
+                    return getDataColumn(context, contentUri, null, null);
+                }
+                // MediaProvider
+                else if (isMediaDocument(uri)) {
+                    final String docId = DocumentsContract.getDocumentId(uri);
+                    final String[] split = docId.split(":");
+                    final String type = split[0];
+
+                    Uri contentUri = null;
+                    if ("image".equals(type)) {
+                        contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                    } else if ("video".equals(type)) {
+                        contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                    } else if ("audio".equals(type)) {
+                        contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                    }
+
+                    final String selection = "_id=?";
+                    final String[] selectionArgs = new String[]{
+                            split[1]
+                    };
+
+                    return getDataColumn(context, contentUri, selection, selectionArgs);
+                }
+            }
+        }
+        // MediaStore (and general)
+        else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            return getDataColumn(context, uri, null, null);
+        }
+        // File
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the value of the data column for this Uri. This is useful for
+     * MediaStore Uris, and other file-based ContentProviders.
+     *
+     * @param context The context.
+     * @param uri The Uri to query.
+     * @param selection (Optional) Filter used in the query.
+     * @param selectionArgs (Optional) Selection arguments used in the query.
+     * @return The value of the _data column, which is typically a file path.
+     */
+    public static String getDataColumn(Context context, Uri uri, String selection,
+                                       String[] selectionArgs) {
+
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = {
+                column
+        };
+
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
+                    null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int column_index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(column_index);
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is ExternalStorageProvider.
+     */
+    public static boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    public static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    public static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
     public static Bitmap decodeSampledBitmapFromPath(String path, int reqWidth,
                                                      int reqHeight) {
 
@@ -511,4 +498,77 @@ public class ProfileActivity extends FragmentActivity {
         return inSampleSize;
     }
 
+    private class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
+        private final WeakReference<ImageView> imageViewReference;
+
+        public BitmapWorkerTask(ImageView imageView) {
+            // Use a WeakReference to ensure the ImageView can be garbage collected
+            imageViewReference = new WeakReference<ImageView>(imageView);
+        }
+
+        // Decode image in background.
+        @Override
+        protected Bitmap doInBackground(Integer... params) {
+            String pImg, realPath = "";
+
+            if (ParseUser.getCurrentUser().get("profileImage") != null) {
+                pImg = ParseUser.getCurrentUser().get("profileImage").toString();
+                profileImgUri = Uri.parse(pImg);
+
+                try {
+                    if (Build.VERSION.SDK_INT < 19){
+                        realPath = getPath(getApplicationContext(), profileImgUri);
+                        Image = decodeSampledBitmapFromPath(realPath, 60, 60);
+                    } else {
+                        realPath = getPath(getApplicationContext(), profileImgUri);
+                        Image = decodeSampledBitmapFromPath(realPath, 60, 60);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Image = null;
+            }
+            return Image;
+        }
+
+        // Once complete, see if ImageView is still around and set bitmap.
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if (imageViewReference != null && bitmap != null) {
+                final ImageView imageView = imageViewReference.get();
+                if (imageView != null) {
+                    imageView.setImageBitmap(bitmap);
+                }
+                new SaveImageTask(bitmap).execute();
+            } else {
+                profileImage.setImageDrawable(getResources().getDrawable(R.drawable.default_profile));
+            }
+        }
+    }
+
+    private class SaveImageTask extends AsyncTask<Integer, Void, Bitmap> {
+        // Decode image in background.
+        Bitmap toParse;
+
+        public SaveImageTask(Bitmap bitmap) {
+            // Use a WeakReference to ensure the ImageView can be garbage collected
+            toParse = bitmap;
+        }
+
+        @Override
+        protected Bitmap doInBackground(Integer... params) {
+
+            saveImageToParse(toParse);
+
+            return toParse;
+        }
+
+        // Once complete, see if ImageView is still around and set bitmap.
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+
+        }
+    }
 }
