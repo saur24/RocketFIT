@@ -322,6 +322,7 @@ public class WeightsActivity extends Activity {
             Log.i("REP", repStr[i]);
             weightStr[i] = allWeights.get(i).getText().toString();
             Log.i("Weights", weightStr[i]);
+
         }
     }
 
