@@ -201,8 +201,8 @@ public class HomeActivity extends Activity
 
             case 2:
                 //Weights
-                //Intent weights = new Intent(getApplicationContext(), WeightsActivity.class);
-                //startActivity(Weights);
+                Intent weights = new Intent(getApplicationContext(), WeightsActivity.class);
+                startActivity(weights);
                 break;
             case 3:
                 //Help/Tutorials
@@ -270,6 +270,7 @@ public class HomeActivity extends Activity
     }
 
     /**
+     * WE DON'T EVEN USE THIS
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
