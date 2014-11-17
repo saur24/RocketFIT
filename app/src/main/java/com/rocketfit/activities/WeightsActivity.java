@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.nfc.NdefMessage;
@@ -15,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +32,9 @@ import android.widget.Toast;
 import com.parse.ParseUser;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import projects.rocketfit.R;
 
@@ -38,6 +42,10 @@ public class WeightsActivity extends Activity {
 
     public static final String MIME_TEXT_PLAIN = "text/plain";
     public static final String TAG = "NfcDemo";
+    public int numberOfSets = 0;
+    public List<EditText> allReps = new ArrayList<EditText>();
+    public List<EditText> allWeights = new ArrayList<EditText>();
+
 
     private TextView mMachineName;
     private NfcAdapter mNfcAdapter;
@@ -259,24 +267,58 @@ public class WeightsActivity extends Activity {
     public void addSet(View view) {
         //add new set
 
-        //create a new row to add
-        TableRow row = new TableRow(WeightsActivity.this);
+        if (numberOfSets < 10) {
+            //create a new row to add
+            TableRow row = new TableRow(WeightsActivity.this);
 
-        //add Layouts to your new row
-        EditText reps   = new EditText(WeightsActivity.this);
-        EditText weight = new EditText(WeightsActivity.this);
+            //add Layouts to your new row
+            EditText reps = new EditText(WeightsActivity.this);
+            EditText weight = new EditText(WeightsActivity.this);
 
-        // add reps/weights to your table
-        row.addView(reps);
-        row.addView(weight);
+            // add reps/weights to your table
+            row.addView(reps);
+            row.addView(weight);
 
-        reps.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
-        weight.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
+            reps.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));    // Center reps and weights on screen
+            reps.setGravity(Gravity.CENTER);                                                                                                // Center user input
+            reps.setRawInputType(Configuration.KEYBOARD_QWERTY);                                                                            // Set num keyboard
+            reps.setMaxLines(1);                                                                                                            // Set max line breaks to 1
+            reps.setHint("Enter Reps");                                                                                                     // Set hint for user
+            weight.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
+            weight.setGravity(Gravity.CENTER);
+            weight.setRawInputType(Configuration.KEYBOARD_QWERTY);
+            weight.setMaxLines(1);
+            weight.setHint("Enter Weight");
 
-        //add your new row to the TableLayout:
-        TableLayout table = (TableLayout) findViewById(R.id.workoutTable);
-        table.addView(row);
+            allReps.add(reps);                                                                                                              // Add to the list of reps
+            allWeights.add(weight);
 
+            //add your new row to the TableLayout:
+            TableLayout table = (TableLayout) findViewById(R.id.workoutTable);
+            table.addView(row);
+        }
+        numberOfSets++;
+    }
+
+    public void submitSets(View view) {
+        // submit sets and print for verification
+        String[] repStr = new String[allReps.size()];
+        String[] weightStr = new String[allWeights.size()];
+
+        // Remove the garbage
+        for(int i=0; i < allReps.size(); i++){
+            if (allReps.get(i).getText().toString().matches("") || allWeights.get(i).getText().toString().matches(""))  {
+               allReps.remove(i);
+               allWeights.remove(i);
+            }
+        }
+
+        for(int i=0; i < allReps.size(); i++){
+            repStr[i] = allReps.get(i).getText().toString();
+            Log.i("REP", repStr[i]);
+            weightStr[i] = allWeights.get(i).getText().toString();
+            Log.i("Weights", weightStr[i]);
+        }
     }
 
     private class SpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {

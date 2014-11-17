@@ -21,7 +21,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/selectMachine"
-        android:entries="@array/machines"
         android:visibility="gone" />
 
     <ImageView
@@ -34,7 +33,7 @@
 
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -78,13 +77,13 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:baselineAligned="false">
-
         </TableLayout>
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Submit Sets"
-            android:id="@+id/button2" />
+            android:id="@+id/button2"
+            android:onClick="submitSets" />
     </LinearLayout>
     </ScrollView>
 
