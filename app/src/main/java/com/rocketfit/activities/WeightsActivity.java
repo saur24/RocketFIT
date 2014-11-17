@@ -2,6 +2,7 @@ package com.rocketfit.activities;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
@@ -18,9 +19,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,7 +67,6 @@ public class WeightsActivity extends Activity {
         } catch (IntentFilter.MalformedMimeTypeException e) {
             throw new RuntimeException("Check your mime type.");
         }
-
         adapter.enableForegroundDispatch(activity, pendingIntent, filters, techList);
     }
 
@@ -89,8 +93,8 @@ public class WeightsActivity extends Activity {
         } else {
             mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
-            if (!mNfcAdapter.isEnabled()) {
-                //NFC is disabled
+            if (mNfcAdapter == null) {
+                //NFC is disabled or phone doesn't have NFC
                 mMachineName.setText("Please select a machine.");
             } else {
                 //NFC is enabled
@@ -122,8 +126,9 @@ public class WeightsActivity extends Activity {
         /**
          * Call this before onPause, otherwise an IllegalArgumentException is thrown as well.
          */
-        stopForegroundDispatch(this, mNfcAdapter);
-
+        if (mNfcAdapter != null) {
+            stopForegroundDispatch(this, mNfcAdapter);
+        }
         super.onPause();
     }
 
@@ -135,7 +140,9 @@ public class WeightsActivity extends Activity {
          * It's important, that the activity is in the foreground (resumed). Otherwise
          * an IllegalStateException is thrown.
          */
-        setupForegroundDispatch(this, mNfcAdapter);
+        if (mNfcAdapter != null) {
+            setupForegroundDispatch(this, mNfcAdapter);
+        }
     }
 
     @Override
@@ -249,6 +256,25 @@ public class WeightsActivity extends Activity {
 
     public void addSet(View view) {
         //add new set
+
+        //create a new row to add
+        TableRow row = new TableRow(WeightsActivity.this);
+
+        //add Layouts to your new row
+        EditText reps   = new EditText(WeightsActivity.this);
+        EditText weight = new EditText(WeightsActivity.this);
+
+        // add reps/weights to your table
+        row.addView(reps);
+        row.addView(weight);
+
+        reps.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
+        weight.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
+
+        //add your new row to the TableLayout:
+        TableLayout table = (TableLayout) findViewById(R.id.workoutTable);
+        table.addView(row);
+
     }
 
     private class SpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
