@@ -42,6 +42,8 @@ public class WeightsActivity extends Activity {
     private TextView mMachineName;
     private NfcAdapter mNfcAdapter;
     private Spinner mSelectMachine;
+    private ImageView mMachineImage;
+    private String[] mImages;
 
     /**
      * @param activity The corresponding {@link Activity} requesting the foreground dispatch.
@@ -85,6 +87,8 @@ public class WeightsActivity extends Activity {
 
         mMachineName = (TextView) findViewById(R.id.machineName);
         mSelectMachine = (Spinner) findViewById(R.id.selectMachine);
+        mMachineImage = (ImageView) findViewById(R.id.machinePic);
+        mImages = getResources().getStringArray(R.array.images);
 
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
             handleIntent(getIntent());
@@ -246,10 +250,10 @@ public class WeightsActivity extends Activity {
             //set imageview to drawable of machine
             String uri = "drawable/" + result;
             int machineImageResource = getResources().getIdentifier(uri, null, getPackageName());
-            ImageView machineImage = (ImageView) findViewById(R.id.machinePic);
+
             try {
                 Drawable machine = getResources().getDrawable(machineImageResource);
-                machineImage.setImageDrawable(machine);
+                mMachineImage.setImageDrawable(machine);
             } catch (Resources.NotFoundException e) {
                 Toast.makeText(WeightsActivity.this, "No image found.", Toast.LENGTH_SHORT).show();
             }
@@ -283,12 +287,18 @@ public class WeightsActivity extends Activity {
 
         public void onItemSelected(AdapterView<?> parent, View view, int pos,
                                    long id) {
-
+            String machineString = parent.getItemAtPosition(pos).toString();
             Toast.makeText(parent.getContext(),
-                    "On Item Select : \n" + parent.getItemAtPosition(pos).toString(),
+                    "On Item Select : \n" + machineString,
                     Toast.LENGTH_LONG).show();
 
-            //String machineString = parent.getItemAtPosition(pos)
+            mMachineName.setText(machineString);
+
+            String resource = "drawable/" + mImages[pos];
+            int machineImageResource = getResources().getIdentifier(resource, null, getPackageName());
+            Drawable machine = getResources().getDrawable(machineImageResource);
+            mMachineImage.setImageDrawable(machine);
+
         }
 
         @Override

@@ -32,4 +32,38 @@
         <item name="matrix_tricep_extension">Matrix - Tricep Extension</item>
         <item name="matrix_tricep_press">Matrix - Tricep Press</item>
     </string-array>
+
+    <string-array name="images">
+        <item>cybex_rotary_torso</item>
+        <item>free_weight_bench_press</item>
+        <item>free_weight_curls</item>
+        <item>free_weight_dead_lifts</item>
+        <item>free_weight_squats</item>
+        <item>magnum_abdominal</item>
+        <item>magnum_arm_curl</item>
+        <item>magnum_biangular_back_pulldown</item>
+        <item>magnum_biangular_chest_press</item>
+        <item>magnum_biangular_lat_pulldown</item>
+        <item>magnum_biangular_lat_row</item>
+        <item>magnum_biangular_shoulder_press</item>
+        <item>magnum_lower_back</item>
+        <item>magnum_multi_hip</item>
+        <item>magnum_pec_or_rear_delt</item>
+        <item>magnum_seated_leg_curl</item>
+        <item>magnum_seated_leg_press</item>
+        <item>magnum_tricep_extension</item>
+        <item>matrix_abdominal</item>
+        <item>matrix_arm_curl</item>
+        <item>matrix_chest_press</item>
+        <item>matrix_hip_abduction</item>
+        <item>matrix_hip_adduction</item>
+        <item>matrix_leg_curl</item>
+        <item>matrix_leg_extension</item>
+        <item>matrix_pec_fly</item>
+        <item>matrix_pullover</item>
+        <item>matrix_seated_leg_press</item>
+        <item>matrix_tricep_extension</item>
+        <item>matrix_tricep_press</item>
+    </string-array>
+
 </resources>
