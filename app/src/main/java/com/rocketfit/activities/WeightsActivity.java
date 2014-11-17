@@ -287,6 +287,8 @@ public class WeightsActivity extends Activity {
             Toast.makeText(parent.getContext(),
                     "On Item Select : \n" + parent.getItemAtPosition(pos).toString(),
                     Toast.LENGTH_LONG).show();
+
+            //String machineString = parent.getItemAtPosition(pos)
         }
 
         @Override
