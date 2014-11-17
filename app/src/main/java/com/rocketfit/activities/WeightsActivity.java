@@ -2,7 +2,6 @@ package com.rocketfit.activities;
 
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
@@ -19,7 +18,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -106,6 +104,8 @@ public class WeightsActivity extends Activity {
     }
 
     private void handleIntent(Intent intent) {
+
+        mSelectMachine.setVisibility(View.INVISIBLE);
 
         String type = intent.getType();
         if (MIME_TEXT_PLAIN.equals(type)) {
@@ -239,7 +239,9 @@ public class WeightsActivity extends Activity {
         protected void onPostExecute(String result) {
             if (result != null) {
                 //set machine name
-                mMachineName.setText(result);
+                String name = "string/" + result;
+                int nameId = getResources().getIdentifier(name, null, getPackageName());
+                mMachineName.setText(getResources().getString(nameId));
             }
             //set imageview to drawable of machine
             String uri = "drawable/" + result;
