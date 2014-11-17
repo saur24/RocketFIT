@@ -46,10 +46,10 @@
             android:layout_gravity="center_horizontal|bottom"
             android:weightSum="1">
 
-            <CalendarView
+            <ListView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/calendarView"
+                android:layout_height="wrap_content"
+                android:id="@+id/android.R.id.list"
                 android:layout_gravity="center_horizontal" />
         </LinearLayout>
 
