@@ -69,8 +69,11 @@ public class HomeActivity extends ListActivity
         setContentView(R.layout.activity_home);
 
         super.onCreate(savedInstanceState);
+        //setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new GetTweets().execute()));
         //setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, getTweets()));
-        /*getTweets();*/
+        //getTweets;
+        //GetTweets tweeter = new GetTweets();
+        new GetTweets().execute(null, null, null);
 
         /*GridView gridview = (GridView) findViewById(R.id.gridView);
         gridview.setAdapter(new ImageAdapter(this));
@@ -199,7 +202,7 @@ public class HomeActivity extends ListActivity
         switch (position) {
 
             case 0:
-               //RocketFIT
+                //RocketFIT
                 break;
 
             case 1:
@@ -278,6 +281,48 @@ public class HomeActivity extends ListActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private class GetTweets extends AsyncTask<String, String, String[]> {
+        @Override
+        protected String[] doInBackground(String... strings) {
+
+            ConfigurationBuilder cb = new ConfigurationBuilder();
+            cb.setDebugEnabled(true)
+                    .setOAuthConsumerKey("m2pJ8sVhK9Op5IpDEMFqAbrzp")
+                    .setOAuthConsumerSecret("kzf5u8iMkBe6zvXdCPnAuz799rh9c07MYQsODwqGxsgtAOhwKC")
+                    .setOAuthAccessToken("308752376-bkNABJVf6PCA4PjJB4DIxSTinrqDVpMME7JDacT9")
+                    .setOAuthAccessTokenSecret("qoObmUGY6zYqP6sXMT9ynvnohYYDcAYJcaALG61kTvRZs");
+            TwitterFactory tf = new TwitterFactory(cb.build());
+            twitter4j.Twitter twitter = tf.getInstance();
+            String[] tweets = new String[10];
+
+            try {
+                // gets Twitter instance with default credentials
+                User user = twitter.verifyCredentials();
+                List<twitter4j.Status> statuses = twitter.getUserTimeline("UToledoSRC");
+                Log.i("Twit","Showing @" + user.getScreenName() + "'s home timeline.");
+                tweets = new String[30];
+                int i = 0;
+                for (twitter4j.Status status : statuses) {
+                    if(i<30) {
+                        Log.i("Twit", "@" + status.getUser().getScreenName() + " - " + status.getText());
+                        tweets[i] = ("@" + status.getUser().getScreenName() + " - " + status.getText());
+                        i++;
+                    }
+                }
+
+            } catch (TwitterException te) {
+                te.printStackTrace();
+                System.out.println("Failed to get timeline: " + te.getMessage());
+                System.exit(-1);
+            }
+
+            return tweets;
+        }
+
+        protected void onPostExecute(String[] result){
+            setListAdapter(new ArrayAdapter<String>(HomeActivity.this, android.R.layout.simple_list_item_1, result));
+        }
+    }
     /**
      * WE DON'T EVEN USE THIS
      * A placeholder fragment containing a simple view.
@@ -319,7 +364,7 @@ public class HomeActivity extends ListActivity
         }
     }
 
-   /* public static void getTweets() {
+   /*public static void getTweets() {
 
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true)
@@ -346,6 +391,3 @@ public class HomeActivity extends ListActivity
         }
     }*/
 }
-
-
-

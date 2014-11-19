@@ -23,7 +23,8 @@ public class TabThreeFragment extends android.support.v4.app.Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_tab_three, container, false);
         TextView tv = (TextView) v.findViewById(R.id.text);
-        tv.setText(this.getTag() + " Content");
+        //tv.setText(this.getTag() + " Content");
+        tv.setText("Ha! you haven't done anything worth awarding. ....lame");
         return v;
     }
 }

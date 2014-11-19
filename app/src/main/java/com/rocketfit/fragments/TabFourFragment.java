@@ -21,7 +21,7 @@ public class TabFourFragment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_tab_one, container, false);
+        View v = inflater.inflate(R.layout.fragment_tab_four, container, false);
 
         TextView tv = (TextView) v.findViewById(R.id.text);
         tv.setText(this.getTag() + " Content");
