@@ -317,7 +317,6 @@ public class WeightsActivity extends Activity {
     }
 
     public void submitSets(View view) {
-        TableLayout table = (TableLayout) findViewById(R.id.workoutTable);           // Used to reset the reps / sets
 
         // Remove the garbage
         for(int i=0; i < allReps.size(); i++){
@@ -335,10 +334,11 @@ public class WeightsActivity extends Activity {
         pQuery.getFirstInBackground(new GetCallback<ParseObject>() {
             public void done(ParseObject object, ParseException e) {
                 if (object == null) {
-
+                    Toast.makeText(getApplicationContext(),"Please select a machine before submitting",Toast.LENGTH_SHORT).show();
                 } else {
                     int[] reps = new int[allReps.size()];
                     int[] weights = new int[allWeights.size()];
+                    TableLayout table = (TableLayout) findViewById(R.id.workoutTable);           // Used to reset the reps / sets
 
                     for (int i = 0; i < allReps.size(); i++) {
                         reps[i] = Integer.parseInt(allReps.get(i).getText().toString());
@@ -355,17 +355,16 @@ public class WeightsActivity extends Activity {
 
                         // This will save the set
                         mySet.saveInBackground();
+
+                        // Reset the layouts for the user
+                        table.removeAllViews();
+                        mMachineName.setText("Select a machine");
+                        mMachineImage.getResources().getDrawable(R.drawable.weight);
+                        mSelectMachine.setSelection(0);
                     }
                 }
             }
         });
-
-        // Reset the layouts for the user
-        table.removeAllViews();
-        mMachineName.setText("Select a machine");
-        mMachineImage.getResources().getDrawable(R.drawable.weight);
-        mSelectMachine.setSelection(0);
-
     }
 
     private class SpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
