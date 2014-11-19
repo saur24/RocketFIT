@@ -3,7 +3,9 @@ package com.rocketfit.activities;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.ListActivity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -12,7 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.ArrayAdapter;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -22,14 +24,16 @@ import com.parse.ParseFacebookUtils;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.rocketfit.fragments.NavigationDrawerFragment;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.util.List;
 
 import projects.rocketfit.R;
+import twitter4j.*;
+import twitter4j.conf.ConfigurationBuilder;
 
 
-public class HomeActivity extends Activity
+public class HomeActivity extends ListActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
@@ -62,6 +66,10 @@ public class HomeActivity extends Activity
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        super.onCreate(savedInstanceState);
+        //setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, getTweets()));
+        /*getTweets();*/
 
         /*GridView gridview = (GridView) findViewById(R.id.gridView);
         gridview.setAdapter(new ImageAdapter(this));
@@ -170,7 +178,7 @@ public class HomeActivity extends Activity
         }
     }
 
-    public void onWeightsSelected(View view) {
+    /*public void onWeightsSelected(View view) {
         //exercise button was pressed
         Toast.makeText(HomeActivity.this, "weights", Toast.LENGTH_SHORT).show();
         Intent exercise = new Intent(getApplicationContext(), WeightsActivity.class);
@@ -183,7 +191,7 @@ public class HomeActivity extends Activity
 //        Intent run = new Intent(getApplicationContext(), RunActivity.class);
 //        startActivity(run);
 //        finish();
-    }
+    }*/
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
@@ -309,4 +317,34 @@ public class HomeActivity extends Activity
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
+
+   /* public static void getTweets() {
+
+        ConfigurationBuilder cb = new ConfigurationBuilder();
+        cb.setDebugEnabled(true)
+                .setOAuthConsumerKey("m2pJ8sVhK9Op5IpDEMFqAbrzp")
+                .setOAuthConsumerSecret("kzf5u8iMkBe6zvXdCPnAuz799rh9c07MYQsODwqGxsgtAOhwKC")
+                .setOAuthAccessToken("308752376-bkNABJVf6PCA4PjJB4DIxSTinrqDVpMME7JDacT9")
+                .setOAuthAccessTokenSecret("qoObmUGY6zYqP6sXMT9ynvnohYYDcAYJcaALG61kTvRZs");
+        TwitterFactory tf = new TwitterFactory(cb.build());
+        twitter4j.Twitter twitter = tf.getInstance();
+
+        try {
+            // gets Twitter instance with default credentials
+            //twitter4j.Twitter twitter = new TwitterFactory().getInstance();
+            User user = twitter.verifyCredentials();
+            List<Status> statuses = twitter.getHomeTimeline();
+            System.out.println("Showing @" + user.getScreenName() + "'s home timeline.");
+            for (Status status : statuses) {
+                System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText());
+            }
+        } catch (TwitterException te) {
+            te.printStackTrace();
+            System.out.println("Failed to get timeline: " + te.getMessage());
+            System.exit(-1);
+        }
+    }*/
 }
+
+
+
