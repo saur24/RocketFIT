@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -178,7 +179,7 @@ public class HomeActivity extends ListActivity
         }
     }
 
-    /*public void onWeightsSelected(View view) {
+    public void onWeightsSelected(View view) {
         //exercise button was pressed
         Toast.makeText(HomeActivity.this, "weights", Toast.LENGTH_SHORT).show();
         Intent exercise = new Intent(getApplicationContext(), WeightsActivity.class);
@@ -191,7 +192,7 @@ public class HomeActivity extends ListActivity
 //        Intent run = new Intent(getApplicationContext(), RunActivity.class);
 //        startActivity(run);
 //        finish();
-    }*/
+    }
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {

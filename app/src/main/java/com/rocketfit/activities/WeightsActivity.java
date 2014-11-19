@@ -15,6 +15,8 @@ import android.nfc.tech.Ndef;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -45,7 +47,6 @@ public class WeightsActivity extends Activity {
     public int numberOfSets = 0;
     public List<EditText> allReps = new ArrayList<EditText>();
     public List<EditText> allWeights = new ArrayList<EditText>();
-
 
     private TextView mMachineName;
     private NfcAdapter mNfcAdapter;
@@ -288,12 +289,16 @@ public class WeightsActivity extends Activity {
             reps.setLines(1);
             reps.setSingleLine();
             reps.setHint("Enter Reps");                                                                                                     // Set hint for user
+            reps.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
+            reps.setInputType(InputType.TYPE_CLASS_NUMBER);
             weight.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
             weight.setGravity(Gravity.CENTER);
             weight.setRawInputType(Configuration.KEYBOARD_QWERTY);
             weight.setSingleLine();
             weight.setLines(1);
             weight.setHint("Enter Weight");
+            weight.setInputType(InputType.TYPE_CLASS_NUMBER);
+            weight.setFilters(new InputFilter[] { new InputFilter.LengthFilter(3) });
 
             allReps.add(reps);                                                                                                              // Add to the list of reps
             allWeights.add(weight);
@@ -307,8 +312,8 @@ public class WeightsActivity extends Activity {
 
     public void submitSets(View view) {
         // submit sets and print for verification
-        String[] repStr = new String[allReps.size()];
-        String[] weightStr = new String[allWeights.size()];
+        int[] repStr = new int[allReps.size()];
+        int[] weightStr = new int[allWeights.size()];
 
         // Remove the garbage
         for(int i=0; i < allReps.size(); i++){
@@ -319,14 +324,13 @@ public class WeightsActivity extends Activity {
         }
 
         for(int i=0; i < allReps.size(); i++){
-            repStr[i] = allReps.get(i).getText().toString();
-            Log.i("REP", repStr[i]);
-            weightStr[i] = allWeights.get(i).getText().toString();
-            Log.i("Weights", weightStr[i]);
+           // repStr[i] = allReps.get(i).getText().toString();
+            repStr[i] = Integer.parseInt(allReps.get(i).getText().toString());
+            Log.i("REP", Integer.toString(repStr[i]));
+          //  weightStr[i] = allWeights.get(i).getText().toString();
+            weightStr[i] = Integer.parseInt(allWeights.get(i).getText().toString());
+            Log.i("Weights", Integer.toString(weightStr[i]));
         }
-
-        
-
     }
 
     private class SpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
