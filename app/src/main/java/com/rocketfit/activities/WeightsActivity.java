@@ -25,12 +25,17 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.io.UnsupportedEncodingException;
@@ -270,67 +275,97 @@ public class WeightsActivity extends Activity {
 
     public void addSet(View view) {
         //add new set
+        if (numberOfSets > 0 && (allReps.get(numberOfSets-1).getText().toString().matches("") || allWeights.get(numberOfSets-1).getText().toString().matches("")))  {
+                      Toast.makeText(getApplicationContext(),"Please finish current set before adding another",Toast.LENGTH_SHORT).show();
+        } else if (numberOfSets < 10) {
+                //create a new row to add
+                TableRow row = new TableRow(WeightsActivity.this);
 
-        if (numberOfSets < 10) {
-            //create a new row to add
-            TableRow row = new TableRow(WeightsActivity.this);
+                //add Layouts to your new row
+                EditText reps = new EditText(WeightsActivity.this);
+                EditText weight = new EditText(WeightsActivity.this);
 
-            //add Layouts to your new row
-            EditText reps = new EditText(WeightsActivity.this);
-            EditText weight = new EditText(WeightsActivity.this);
+                // add reps/weights to your table
+                row.addView(reps);
+                row.addView(weight);
 
-            // add reps/weights to your table
-            row.addView(reps);
-            row.addView(weight);
+                reps.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));    // Center reps and weights on screen
+                reps.setGravity(Gravity.CENTER);                                                                                                // Center user input
+                reps.setRawInputType(Configuration.KEYBOARD_QWERTY);                                                                            // Set num keyboard
+                reps.setLines(1);
+                reps.setSingleLine();
+                reps.setHint("Enter Reps");                                                                                                     // Set hint for user
+                reps.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
+                reps.setInputType(InputType.TYPE_CLASS_NUMBER);
+                weight.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
+                weight.setGravity(Gravity.CENTER);
+                weight.setRawInputType(Configuration.KEYBOARD_QWERTY);
+                weight.setSingleLine();
+                weight.setLines(1);
+                weight.setHint("Enter Weight");
+                weight.setInputType(InputType.TYPE_CLASS_NUMBER);
+                weight.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
 
-            reps.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));    // Center reps and weights on screen
-            reps.setGravity(Gravity.CENTER);                                                                                                // Center user input
-            reps.setRawInputType(Configuration.KEYBOARD_QWERTY);                                                                            // Set num keyboard
-            reps.setLines(1);
-            reps.setSingleLine();
-            reps.setHint("Enter Reps");                                                                                                     // Set hint for user
-            reps.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
-            reps.setInputType(InputType.TYPE_CLASS_NUMBER);
-            weight.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
-            weight.setGravity(Gravity.CENTER);
-            weight.setRawInputType(Configuration.KEYBOARD_QWERTY);
-            weight.setSingleLine();
-            weight.setLines(1);
-            weight.setHint("Enter Weight");
-            weight.setInputType(InputType.TYPE_CLASS_NUMBER);
-            weight.setFilters(new InputFilter[] { new InputFilter.LengthFilter(3) });
+                allReps.add(reps);                                                                                                              // Add to the list of reps
+                allWeights.add(weight);
 
-            allReps.add(reps);                                                                                                              // Add to the list of reps
-            allWeights.add(weight);
-
-            //add your new row to the TableLayout:
-            TableLayout table = (TableLayout) findViewById(R.id.workoutTable);
-            table.addView(row);
+                //add your new row to the TableLayout:
+                TableLayout table = (TableLayout) findViewById(R.id.workoutTable);
+                table.addView(row);
+                numberOfSets++;
         }
-        numberOfSets++;
     }
 
     public void submitSets(View view) {
-        // submit sets and print for verification
-        int[] repStr = new int[allReps.size()];
-        int[] weightStr = new int[allWeights.size()];
+        TableLayout table = (TableLayout) findViewById(R.id.workoutTable);           // Used to reset the reps / sets
 
         // Remove the garbage
         for(int i=0; i < allReps.size(); i++){
             if (allReps.get(i).getText().toString().matches("") || allWeights.get(i).getText().toString().matches(""))  {
                allReps.remove(i);
                allWeights.remove(i);
+               i = -1;
             }
         }
 
-        for(int i=0; i < allReps.size(); i++){
-           // repStr[i] = allReps.get(i).getText().toString();
-            repStr[i] = Integer.parseInt(allReps.get(i).getText().toString());
-            Log.i("REP", Integer.toString(repStr[i]));
-          //  weightStr[i] = allWeights.get(i).getText().toString();
-            weightStr[i] = Integer.parseInt(allWeights.get(i).getText().toString());
-            Log.i("Weights", Integer.toString(weightStr[i]));
-        }
+        // Query for machine that the user selected and send data to parse
+        ParseQuery<ParseObject> pQuery = new ParseQuery<ParseObject>("Machine");
+
+        pQuery.whereEqualTo("name", mMachineName.getText().toString().toLowerCase());
+        pQuery.getFirstInBackground(new GetCallback<ParseObject>() {
+            public void done(ParseObject object, ParseException e) {
+                if (object == null) {
+
+                } else {
+                    int[] reps = new int[allReps.size()];
+                    int[] weights = new int[allWeights.size()];
+
+                    for (int i = 0; i < allReps.size(); i++) {
+                        reps[i] = Integer.parseInt(allReps.get(i).getText().toString());
+                        weights[i] = Integer.parseInt(allWeights.get(i).getText().toString());
+                        Log.i("REP", Integer.toString(reps[i]));
+                        Log.i("Weights", Integer.toString(weights[i]));
+
+                        // Create the set
+                        ParseObject mySet = new ParseObject("Set");
+                        // Add a relation between the Post with objectId "1zEcyElZ80" and the comment
+                        mySet.put("parent", ParseObject.createWithoutData("Set", object.getObjectId()));
+                        mySet.put("repetitions", reps[i]);
+                        mySet.put("resistance", weights[i]);
+
+                        // This will save the set
+                        mySet.saveInBackground();
+                    }
+                }
+            }
+        });
+
+        // Reset the layouts for the user
+        table.removeAllViews();
+        mMachineName.setText("Select a machine");
+        mMachineImage.getResources().getDrawable(R.drawable.weight);
+        mSelectMachine.setSelection(0);
+
     }
 
     private class SpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
