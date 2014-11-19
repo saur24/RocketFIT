@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -25,12 +24,15 @@ import com.parse.ParseFacebookUtils;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.rocketfit.fragments.NavigationDrawerFragment;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.List;
 
 import projects.rocketfit.R;
-import twitter4j.*;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
 
@@ -160,7 +162,7 @@ public class HomeActivity extends ListActivity
         request.executeAsync();
     }
 
-    private void updateViewsWithProfsileInfo() {
+    private void updateViewsWithProfileInfo() {
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser.get("profile") != null) {
             JSONObject userProfile = currentUser.getJSONObject("profile");
@@ -184,14 +186,14 @@ public class HomeActivity extends ListActivity
 
     public void onWeightsSelected(View view) {
         //exercise button was pressed
-        Toast.makeText(HomeActivity.this, "weights", Toast.LENGTH_SHORT).show();
-        Intent exercise = new Intent(getApplicationContext(), WeightsActivity.class);
-        startActivity(exercise);
+        //Toast.makeText(HomeActivity.this, "weights", Toast.LENGTH_SHORT).show();
+        Intent weights = new Intent(getApplicationContext(), WeightsActivity.class);
+        startActivity(weights);
     }
 
     public void onRunSelected(View view) {
         //run button was pressed
-        Toast.makeText(HomeActivity.this, "run", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(HomeActivity.this, "run", Toast.LENGTH_SHORT).show();
 //        Intent run = new Intent(getApplicationContext(), RunActivity.class);
 //        startActivity(run);
 //        finish();
@@ -212,12 +214,14 @@ public class HomeActivity extends ListActivity
                 break;
 
             case 2:
+                //Run/Walk
+//                Intent weights = new Intent(getApplicationContext(), WeightsActivity.class);
+//                startActivity(weights);
+                break;
+            case 3:
                 //Weights
                 Intent weights = new Intent(getApplicationContext(), WeightsActivity.class);
                 startActivity(weights);
-                break;
-            case 3:
-                //Help/Tutorials
                 break;
         }
     }
@@ -297,14 +301,14 @@ public class HomeActivity extends ListActivity
 
             try {
                 // gets Twitter instance with default credentials
-                User user = twitter.verifyCredentials();
+                //User user = twitter.verifyCredentials();
                 List<twitter4j.Status> statuses = twitter.getUserTimeline("UToledoSRC");
-                Log.i("Twit","Showing @" + user.getScreenName() + "'s home timeline.");
+                //Log.i("Twit","Showing @" + user.getScreenName() + "'s home timeline.");
                 tweets = new String[30];
                 int i = 0;
                 for (twitter4j.Status status : statuses) {
                     if(i<30) {
-                        Log.i("Twit", "@" + status.getUser().getScreenName() + " - " + status.getText());
+                        //Log.i("Twit", "@" + status.getUser().getScreenName() + " - " + status.getText());
                         tweets[i] = ("@" + status.getUser().getScreenName() + " - " + status.getText());
                         i++;
                     }

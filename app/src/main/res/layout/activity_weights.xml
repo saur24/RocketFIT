@@ -27,10 +27,12 @@
     <ImageView
         android:id="@+id/machinePic"
         android:src="@drawable/weight"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="175dp"
+        android:layout_height="175dp"
         android:layout_gravity="center_horizontal"
-        android:contentDescription="Machine Pic" />
+        android:contentDescription="Machine Pic"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp" />
 
 
     <LinearLayout
