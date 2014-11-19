@@ -285,12 +285,14 @@ public class WeightsActivity extends Activity {
             reps.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));    // Center reps and weights on screen
             reps.setGravity(Gravity.CENTER);                                                                                                // Center user input
             reps.setRawInputType(Configuration.KEYBOARD_QWERTY);                                                                            // Set num keyboard
-            reps.setMaxLines(1);                                                                                                            // Set max line breaks to 1
+            reps.setLines(1);
+            reps.setSingleLine();
             reps.setHint("Enter Reps");                                                                                                     // Set hint for user
             weight.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
             weight.setGravity(Gravity.CENTER);
             weight.setRawInputType(Configuration.KEYBOARD_QWERTY);
-            weight.setMaxLines(1);
+            weight.setSingleLine();
+            weight.setLines(1);
             weight.setHint("Enter Weight");
 
             allReps.add(reps);                                                                                                              // Add to the list of reps
@@ -321,8 +323,10 @@ public class WeightsActivity extends Activity {
             Log.i("REP", repStr[i]);
             weightStr[i] = allWeights.get(i).getText().toString();
             Log.i("Weights", weightStr[i]);
-
         }
+
+        
+
     }
 
     private class SpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
