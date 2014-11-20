@@ -86,8 +86,9 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Submit Sets"
-            android:id="@+id/button2"
-            android:onClick="submitSets" />
+            android:id="@+id/submit"
+            android:onClick="submitSets"
+            android:visibility="gone"/>
     </LinearLayout>
     </ScrollView>
 

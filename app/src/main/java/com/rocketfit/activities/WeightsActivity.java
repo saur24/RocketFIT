@@ -1,11 +1,14 @@
 package com.rocketfit.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -15,6 +18,7 @@ import android.nfc.tech.Ndef;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
@@ -23,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -35,11 +40,14 @@ import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import projects.rocketfit.R;
@@ -56,7 +64,9 @@ public class WeightsActivity extends Activity {
     private NfcAdapter mNfcAdapter;
     private Spinner mSelectMachine;
     private ImageView mMachineImage;
+    private Button mSubmit;
     private String[] mImages;
+    private ParseObject workout;
 
     /**
      * @param activity The corresponding {@link Activity} requesting the foreground dispatch.
@@ -102,6 +112,7 @@ public class WeightsActivity extends Activity {
         mSelectMachine = (Spinner) findViewById(R.id.selectMachine);
         mMachineImage = (ImageView) findViewById(R.id.machinePic);
         mImages = getResources().getStringArray(R.array.images);
+        mSubmit = (Button) findViewById(R.id.submit);
 
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
             handleIntent(getIntent());
@@ -110,6 +121,24 @@ public class WeightsActivity extends Activity {
             mSelectMachine.setVisibility(View.VISIBLE);
             mSelectMachine.setOnItemSelectedListener(new SpinnerOnItemSelectedListener());
         }
+
+        // check if a workout exists
+        ParseQuery<ParseObject> workoutQuery = ParseQuery.getQuery("Workout");
+        workoutQuery.whereEqualTo("createdBy", ParseUser.getCurrentUser());
+        workoutQuery.whereDoesNotExist("finishedAt");
+        workoutQuery.getFirstInBackground(new GetCallback<ParseObject>() {
+            public void done(ParseObject object, ParseException e) {
+                if (object == null) {
+                    ParseUser currentUser = ParseUser.getCurrentUser();
+                    // an open workout doesn't exist, create one
+                    workout = new ParseObject("Workout");
+                    workout.put("createdBy", currentUser);
+                } else {
+                    // an open workout exists... add stuff to existing workout
+                    workout = object;
+                }
+            }
+        });
     }
 
     private void handleIntent(Intent intent) {
@@ -156,7 +185,7 @@ public class WeightsActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_weights, menu);
+        getMenuInflater().inflate(R.menu.menu_workout, menu);
         return true;
     }
 
@@ -177,6 +206,49 @@ public class WeightsActivity extends Activity {
             return true;
         }
 
+        if (id == R.id.action_save) {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(WeightsActivity.this);
+            builder1.setMessage("Are you sure you want to submit your workout?");
+            builder1.setCancelable(true);
+            builder1.setPositiveButton("Yes",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            if (((workout.get("sets") == null) && (workout.get("run") == null)) || (workout == null)) {
+                                Toast.makeText(getApplicationContext(),"Your workout did not save. Please try again!",Toast.LENGTH_SHORT).show();
+                                dialog.cancel();
+                            } else {
+                                // Submit workout
+                                ParseUser currentUser = ParseUser.getCurrentUser();
+
+                                //get current date time with Date()
+                                Date date = new Date();
+                                workout.put("finishedAt", date);
+
+                                ParseRelation<ParseObject> userRelation = currentUser.getRelation("workouts");
+                                userRelation.add(workout);
+
+                                // save the user
+                                currentUser.saveInBackground();
+                                // save the workout
+                                workout.saveInBackground();
+                                Toast.makeText(getApplicationContext(),"Workout saved!",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+            builder1.setNegativeButton("No",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+
+            AlertDialog alert1 = builder1.create();
+            alert1.show();
+
+            return true;
+        }
+
         if (id == R.id.action_logout) {
             ParseUser.logOut();
             ParseUser currentUser = ParseUser.getCurrentUser(); // this will now be null
@@ -189,99 +261,6 @@ public class WeightsActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void addSet(View view) {
-        //add new set
-        if (numberOfSets > 0 && (allReps.get(numberOfSets - 1).getText().toString().matches("") || allWeights.get(numberOfSets - 1).getText().toString().matches(""))) {
-            Toast.makeText(getApplicationContext(), "Please finish current set before adding another", Toast.LENGTH_SHORT).show();
-        } else if (numberOfSets < 10) {
-            //create a new row to add
-            TableRow row = new TableRow(WeightsActivity.this);
-
-            //add Layouts to your new row
-            EditText reps = new EditText(WeightsActivity.this);
-            EditText weight = new EditText(WeightsActivity.this);
-
-            // add reps/weights to your table
-            row.addView(reps);
-            row.addView(weight);
-
-            reps.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));    // Center reps and weights on screen
-            reps.setGravity(Gravity.CENTER);                                                                                                // Center user input
-            reps.setRawInputType(Configuration.KEYBOARD_QWERTY);                                                                            // Set num keyboard
-            reps.setLines(1);
-            reps.setSingleLine();
-            reps.setHint("Enter Reps");                                                                                                     // Set hint for user
-            reps.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
-            reps.setInputType(InputType.TYPE_CLASS_NUMBER);
-            weight.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
-            weight.setGravity(Gravity.CENTER);
-            weight.setRawInputType(Configuration.KEYBOARD_QWERTY);
-            weight.setSingleLine();
-            weight.setLines(1);
-            weight.setHint("Enter Weight");
-            weight.setInputType(InputType.TYPE_CLASS_NUMBER);
-            weight.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
-
-            allReps.add(reps);                                                                                                              // Add to the list of reps
-            allWeights.add(weight);
-
-            //add your new row to the TableLayout:
-            TableLayout table = (TableLayout) findViewById(R.id.workoutTable);
-            table.addView(row);
-            numberOfSets++;
-        }
-    }
-
-    public void submitSets(View view) {
-
-        // Remove the garbage
-        for (int i = 0; i < allReps.size(); i++) {
-            if (allReps.get(i).getText().toString().matches("") || allWeights.get(i).getText().toString().matches("")) {
-                allReps.remove(i);
-                allWeights.remove(i);
-                i = -1;
-            }
-        }
-
-        // Query for machine that the user selected and send data to parse
-        ParseQuery<ParseObject> pQuery = new ParseQuery<ParseObject>("Machine");
-
-        pQuery.whereEqualTo("name", mMachineName.getText().toString().toLowerCase());
-        pQuery.getFirstInBackground(new GetCallback<ParseObject>() {
-            public void done(ParseObject object, ParseException e) {
-                if (object == null) {
-                    Toast.makeText(getApplicationContext(), "Please select a machine before submitting", Toast.LENGTH_SHORT).show();
-                } else {
-                    int[] reps = new int[allReps.size()];
-                    int[] weights = new int[allWeights.size()];
-                    TableLayout table = (TableLayout) findViewById(R.id.workoutTable);           // Used to reset the reps / sets
-
-                    for (int i = 0; i < allReps.size(); i++) {
-                        reps[i] = Integer.parseInt(allReps.get(i).getText().toString());
-                        weights[i] = Integer.parseInt(allWeights.get(i).getText().toString());
-                        Log.i("REP", Integer.toString(reps[i]));
-                        Log.i("Weights", Integer.toString(weights[i]));
-
-                        // Create the set
-                        ParseObject mySet = new ParseObject("Set");
-                        mySet.put("parent", ParseObject.createWithoutData("Set", object.getObjectId()));
-                        mySet.put("repetitions", reps[i]);
-                        mySet.put("resistance", weights[i]);
-
-                        // This will save the set
-                        mySet.saveInBackground();
-
-                        // Reset the layouts for the user
-                        table.removeAllViews();
-                        mMachineName.setText("Select a machine");
-                        mMachineImage.getResources().getDrawable(R.drawable.weight);
-                        mSelectMachine.setSelection(0);
-                    }
-                }
-            }
-        });
     }
 
     private class NdefReaderTask extends AsyncTask<Tag, Void, String> {
@@ -357,6 +336,122 @@ public class WeightsActivity extends Activity {
         }
     }
 
+    public void addSet(View view) {
+        //add new set
+        if (numberOfSets > 0 && (allReps.get(numberOfSets-1).getText().toString().matches("") || allWeights.get(numberOfSets-1).getText().toString().matches("")))  {
+                      Toast.makeText(getApplicationContext(),"Please finish current set before adding another",Toast.LENGTH_SHORT).show();
+        } else if (numberOfSets < 10) {
+                //create a new row to add
+                TableRow row = new TableRow(WeightsActivity.this);
+
+                //add Layouts to your new row
+                EditText reps = new EditText(WeightsActivity.this);
+                EditText weight = new EditText(WeightsActivity.this);
+
+                // add reps/weights to your table
+                row.addView(reps);
+                row.addView(weight);
+
+                reps.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));    // Center reps and weights on screen
+                reps.setGravity(Gravity.CENTER);                                                                                                // Center user input
+                reps.setRawInputType(Configuration.KEYBOARD_QWERTY);                                                                            // Set num keyboard
+                reps.setLines(1);
+                reps.setSingleLine();
+                reps.setHint("Enter Reps");                                                                                                     // Set hint for user
+                reps.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
+                reps.setInputType(InputType.TYPE_CLASS_NUMBER);
+                weight.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
+                weight.setGravity(Gravity.CENTER);
+                weight.setRawInputType(Configuration.KEYBOARD_QWERTY);
+                weight.setSingleLine();
+                weight.setLines(1);
+                weight.setHint("Enter Weight");
+                weight.setInputType(InputType.TYPE_CLASS_NUMBER);
+                weight.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
+
+                allReps.add(reps);                                                                                                              // Add to the list of reps
+                allWeights.add(weight);
+
+                //add your new row to the TableLayout:
+                TableLayout table = (TableLayout) findViewById(R.id.workoutTable);
+                table.addView(row);
+                numberOfSets++;
+        }
+    }
+
+    public void submitSets(View view) {
+        TableLayout table = (TableLayout) findViewById(R.id.workoutTable);           // Used to reset the reps / sets
+
+        // Remove the garbage
+        for(int i=0; i < allReps.size(); i++){
+            if (allReps.get(i).getText().toString().matches("") || allWeights.get(i).getText().toString().matches(""))  {
+               allReps.remove(i);
+               allWeights.remove(i);
+               i = -1;
+            }
+        }
+
+        // Query for machine that the user selected and send data to parse
+        ParseQuery<ParseObject> pQuery = new ParseQuery<ParseObject>("Machine");
+        pQuery.whereEqualTo("name", mMachineName.getText().toString().toLowerCase());
+        pQuery.getFirstInBackground(new GetCallback<ParseObject>() {
+            public void done(ParseObject object, ParseException e) {
+                if (object == null) {
+                    Toast.makeText(getApplicationContext(),"Please select a machine before submitting",Toast.LENGTH_SHORT).show();
+                } else {
+                    int[] reps = new int[allReps.size()];
+                    int[] weights = new int[allWeights.size()];
+
+                    for (int i = 0; i < allReps.size(); i++) {
+                        reps[i] = Integer.parseInt(allReps.get(i).getText().toString());
+                        weights[i] = Integer.parseInt(allWeights.get(i).getText().toString());
+                        Log.i("REP", Integer.toString(reps[i]));
+                        Log.i("Weights", Integer.toString(weights[i]));
+
+                        // Create the set
+                        final ParseObject mySet = new ParseObject("Set");
+                        final ParseObject myMachine = object;
+
+                        // Add a relation between the Set with objectId of Machine and the comment
+                        ParseRelation<ParseObject> setRelation = mySet.getRelation("machineId");
+                        setRelation.add(object);
+
+                        mySet.put("repetitions", reps[i]);
+                        mySet.put("resistance", weights[i]);
+
+                        // This will save the set
+                        mySet.saveInBackground(new SaveCallback() {
+                            public void done(ParseException e) {
+                                if (e == null) {
+                                    //myObjectSavedSuccessfully();
+                                    ParseRelation<ParseObject> workoutRelation = workout.getRelation("sets");
+                                    workoutRelation.add(mySet);
+
+                                    workout.saveInBackground();
+
+                                    allReps.clear();
+                                    allWeights.clear();
+                                    numberOfSets = 0;
+                                } else {
+                                    //myObjectSaveDidNotSucceed();
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        });
+        // Reset the layouts for the user
+        table.removeAllViews();
+        mMachineName.setText("Select a machine");
+        mMachineImage.getResources().getDrawable(R.drawable.weight);
+        mSelectMachine.setSelection(0);
+        mSubmit.setVisibility(View.GONE);
+
+        Toast.makeText(getApplicationContext(),"Set(s) saved!",Toast.LENGTH_SHORT).show();
+
+    }
+
     private class SpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> parent, View view, int pos,
@@ -372,6 +467,10 @@ public class WeightsActivity extends Activity {
             int machineImageResource = getResources().getIdentifier(resource, null, getPackageName());
             Drawable machine = getResources().getDrawable(machineImageResource);
             mMachineImage.setImageDrawable(machine);
+
+            if(pos > 0) {
+                mSubmit.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
