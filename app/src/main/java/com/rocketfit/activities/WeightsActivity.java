@@ -352,7 +352,7 @@ public class WeightsActivity extends Activity {
                 row.addView(reps);
                 row.addView(weight);
 
-                reps.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));    // Center reps and weights on screen
+                reps.setLayoutParams(new TableRow.LayoutParams(0, TableLayout.LayoutParams.MATCH_PARENT, 1f));    // Center reps and weights on screen
                 reps.setGravity(Gravity.CENTER);                                                                                                // Center user input
                 reps.setRawInputType(Configuration.KEYBOARD_QWERTY);                                                                            // Set num keyboard
                 reps.setLines(1);
@@ -360,7 +360,7 @@ public class WeightsActivity extends Activity {
                 reps.setHint("Enter Reps");                                                                                                     // Set hint for user
                 reps.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
                 reps.setInputType(InputType.TYPE_CLASS_NUMBER);
-                weight.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
+                weight.setLayoutParams(new TableRow.LayoutParams(0, TableLayout.LayoutParams.MATCH_PARENT, 1f));
                 weight.setGravity(Gravity.CENTER);
                 weight.setRawInputType(Configuration.KEYBOARD_QWERTY);
                 weight.setSingleLine();
