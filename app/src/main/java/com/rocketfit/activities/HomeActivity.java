@@ -14,7 +14,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -23,14 +26,17 @@ import com.facebook.model.GraphUser;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
+import com.rocketfit.TweetListAdapter;
 import com.rocketfit.fragments.NavigationDrawerFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import projects.rocketfit.R;
+import twitter4j.Status;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
@@ -71,20 +77,8 @@ public class HomeActivity extends ListActivity
         setContentView(R.layout.activity_home);
 
         super.onCreate(savedInstanceState);
-        //setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new GetTweets().execute()));
-        //setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, getTweets()));
-        //getTweets;
-        //GetTweets tweeter = new GetTweets();
+
         new GetTweets().execute(null, null, null);
-
-        /*GridView gridview = (GridView) findViewById(R.id.gridView);
-        gridview.setAdapter(new ImageAdapter(this));
-
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                Toast.makeText(HomeActivity.this, "" + position, Toast.LENGTH_SHORT).show();
-            }
-        });*/
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -285,9 +279,9 @@ public class HomeActivity extends ListActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private class GetTweets extends AsyncTask<String, String, String[]> {
+    private class GetTweets extends AsyncTask<String, String, List<twitter4j.Status>> {
         @Override
-        protected String[] doInBackground(String... strings) {
+        protected List<twitter4j.Status> doInBackground(String... strings) {
 
             ConfigurationBuilder cb = new ConfigurationBuilder();
             cb.setDebugEnabled(true)
@@ -297,22 +291,12 @@ public class HomeActivity extends ListActivity
                     .setOAuthAccessTokenSecret("qoObmUGY6zYqP6sXMT9ynvnohYYDcAYJcaALG61kTvRZs");
             TwitterFactory tf = new TwitterFactory(cb.build());
             twitter4j.Twitter twitter = tf.getInstance();
-            String[] tweets = new String[10];
+            List<twitter4j.Status> tweets = new ArrayList();
 
             try {
                 // gets Twitter instance with default credentials
                 //User user = twitter.verifyCredentials();
-                List<twitter4j.Status> statuses = twitter.getUserTimeline("UToledoSRC");
-                //Log.i("Twit","Showing @" + user.getScreenName() + "'s home timeline.");
-                tweets = new String[30];
-                int i = 0;
-                for (twitter4j.Status status : statuses) {
-                    if(i<30) {
-                        //Log.i("Twit", "@" + status.getUser().getScreenName() + " - " + status.getText());
-                        tweets[i] = ("@" + status.getUser().getScreenName() + " - " + status.getText());
-                        i++;
-                    }
-                }
+                tweets = twitter.getUserTimeline("UToledoSRC");
 
             } catch (TwitterException te) {
                 te.printStackTrace();
@@ -323,8 +307,8 @@ public class HomeActivity extends ListActivity
             return tweets;
         }
 
-        protected void onPostExecute(String[] result){
-            setListAdapter(new ArrayAdapter<String>(HomeActivity.this, android.R.layout.simple_list_item_1, result));
+        protected void onPostExecute(List<twitter4j.Status> result){
+            setListAdapter(new TweetListAdapter(HomeActivity.this, result));
         }
     }
     /**
@@ -367,31 +351,4 @@ public class HomeActivity extends ListActivity
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
-
-   /*public static void getTweets() {
-
-        ConfigurationBuilder cb = new ConfigurationBuilder();
-        cb.setDebugEnabled(true)
-                .setOAuthConsumerKey("m2pJ8sVhK9Op5IpDEMFqAbrzp")
-                .setOAuthConsumerSecret("kzf5u8iMkBe6zvXdCPnAuz799rh9c07MYQsODwqGxsgtAOhwKC")
-                .setOAuthAccessToken("308752376-bkNABJVf6PCA4PjJB4DIxSTinrqDVpMME7JDacT9")
-                .setOAuthAccessTokenSecret("qoObmUGY6zYqP6sXMT9ynvnohYYDcAYJcaALG61kTvRZs");
-        TwitterFactory tf = new TwitterFactory(cb.build());
-        twitter4j.Twitter twitter = tf.getInstance();
-
-        try {
-            // gets Twitter instance with default credentials
-            //twitter4j.Twitter twitter = new TwitterFactory().getInstance();
-            User user = twitter.verifyCredentials();
-            List<Status> statuses = twitter.getHomeTimeline();
-            System.out.println("Showing @" + user.getScreenName() + "'s home timeline.");
-            for (Status status : statuses) {
-                System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText());
-            }
-        } catch (TwitterException te) {
-            te.printStackTrace();
-            System.out.println("Failed to get timeline: " + te.getMessage());
-            System.exit(-1);
-        }
-    }*/
 }

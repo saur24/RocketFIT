@@ -42,15 +42,26 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="473dp"
-            android:layout_gravity="center_horizontal|bottom"
-            android:weightSum="1">
+            android:layout_height="fill_parent"
+            android:layout_marginTop="41dp"
+            android:weightSum="1"
+            android:gravity="fill_vertical"
+            android:layout_gravity="bottom">
+            <ImageView
+                android:background="@drawable/activity_background"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
             <ListView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:id="@id/android:list"
-                android:layout_gravity="center_horizontal" />
+                tools:listitem="@layout/list_item"
+                android:dividerHeight="2dp"
+            />
         </LinearLayout>
 
     </FrameLayout>
