@@ -3,6 +3,7 @@ package com.rocketfit.activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -19,6 +20,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
+import android.text.Html;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
@@ -30,12 +32,14 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -59,7 +63,13 @@ public class WeightsActivity extends Activity {
     public int numberOfSets = 0;
     public List<EditText> allReps = new ArrayList<EditText>();
     public List<EditText> allWeights = new ArrayList<EditText>();
+    public List<String> printReps = new ArrayList<String>();
+    public List<String> printRes = new ArrayList<String>();
+    public List<String> printMach = new ArrayList<String>();
+    public StringBuilder wSum = new StringBuilder();
 
+
+    private ProgressDialog mLoading;
     private TextView mMachineName;
     private NfcAdapter mNfcAdapter;
     private Spinner mSelectMachine;
@@ -218,22 +228,164 @@ public class WeightsActivity extends Activity {
                                 Toast.makeText(getApplicationContext(),"Your workout did not save. Please try again!",Toast.LENGTH_SHORT).show();
                                 dialog.cancel();
                             } else {
-                                // Submit workout
-                                ParseUser currentUser = ParseUser.getCurrentUser();
 
-                                //get current date time with Date()
-                                Date date = new Date();
-                                workout.put("finishedAt", date);
+                                dialog.dismiss();
+                                mLoading = ProgressDialog.show(WeightsActivity.this, "Working..", "Calculating Pi", true, false);
 
-                                ParseRelation<ParseObject> userRelation = currentUser.getRelation("workouts");
-                                userRelation.add(workout);
+                                Thread mThread = new Thread() {
+                                    @Override
+                                    public void run() {
+                                        // Submit workout
+                                        ParseUser currentUser = ParseUser.getCurrentUser();
 
-                                // save the user
-                                currentUser.saveInBackground();
-                                // save the workout
-                                workout.saveInBackground();
-                                Toast.makeText(getApplicationContext(),"Workout saved!",Toast.LENGTH_SHORT).show();
-                            }
+                                        //get current date time with Date()
+                                        Date date = new Date();
+                                        workout.put("finishedAt", date);
+
+                                        ParseRelation<ParseObject> userRelation = currentUser.getRelation("workouts");
+                                        userRelation.add(workout);
+
+                                        // save the user
+                                        currentUser.saveInBackground();
+                                        // save the workout
+                                        workout.saveInBackground();
+
+                                        ParseQuery<ParseObject> setsQuery = workout.getRelation("sets").getQuery();
+                                        setsQuery.orderByAscending("createdAt");
+                                        String strMachine = "", lastMachine = "";
+
+                                        try {
+                                            List<ParseObject> objects = setsQuery.find();
+
+                                            for (int i = 0; i < objects.size(); i++) {
+                                                ParseObject oneSet = objects.get(i);
+
+                                                ParseObject machine;
+                                                ParseQuery<ParseObject> machineQuery = oneSet.getRelation("machineId").getQuery();
+                                                try {
+                                                    machine = machineQuery.getFirst();
+                                                    strMachine = machine.get("name").toString();
+                                                    Log.i("MACHINE", strMachine);
+
+                                                    if (i == 0) {
+                                                        wSum.append(String.format("<b>%s</b>", strMachine) + "<br>");
+                                                    } else if (!(lastMachine.compareTo(strMachine) == 0)) {
+                                                        wSum.append(String.format("<br>" + "<b>%s</b>", strMachine) + "<br>");
+                                                    }
+
+                                                    //        printMach.add(machine.get("name").toString());
+                                                } catch (ParseException e1) {
+
+                                                }
+
+                                                wSum.append("Reps: " + oneSet.get("repetitions").toString() + "&nbsp;&nbsp;&nbsp;&nbsp;");
+                                                wSum.append("Weight: " + oneSet.get("resistance").toString() + " lbs" + "<br>");
+
+                                                //   printReps.add(oneSet.get("repetitions").toString());
+                                                //   printRes.add(oneSet.get("resistance").toString());
+
+                                                //        Toast.makeText(WeightsActivity.this, reps, Toast.LENGTH_SHORT).show();
+                                                //        Toast.makeText(WeightsActivity.this, res, Toast.LENGTH_SHORT).show();
+
+                                                lastMachine = strMachine;
+                                            }
+
+                                        } catch (ParseException e2) {
+
+                                        }
+                                        mLoading.dismiss();
+                                    }
+                                };
+                                mThread.start();
+
+                                try {
+                                    mThread.join();
+                                    Toast.makeText(getApplicationContext(), "Workout saved!", Toast.LENGTH_SHORT).show();
+                                    AlertDialog.Builder workoutSummary = new AlertDialog.Builder(WeightsActivity.this);
+                                    workoutSummary.setTitle("Your Workout Summary");
+                                    workoutSummary.setMessage(Html.fromHtml(wSum.toString()));
+                                    workoutSummary.setCancelable(true);
+                                    workoutSummary.setPositiveButton("Close Summary",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+
+                                                    dialog.cancel();
+                                                    wSum.setLength(0);
+                                                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                                    startActivity(intent);
+                                                    finish();
+
+                                                }
+                                            });
+                                    AlertDialog alert2 = workoutSummary.create();
+                                    alert2.show();
+                                } catch(Exception e) {
+
+                                }
+
+//                                // Submit workout
+//                                ParseUser currentUser = ParseUser.getCurrentUser();
+//
+//                                //get current date time with Date()
+//                                Date date = new Date();
+//                                workout.put("finishedAt", date);
+//
+//                                ParseRelation<ParseObject> userRelation = currentUser.getRelation("workouts");
+//                                userRelation.add(workout);
+//
+//                                // save the user
+//                                currentUser.saveInBackground();
+//                                // save the workout
+//                                workout.saveInBackground();
+//                                Toast.makeText(getApplicationContext(),"Workout saved!",Toast.LENGTH_SHORT).show();
+//
+//                                ParseQuery<ParseObject> setsQuery = workout.getRelation("sets").getQuery();
+//                                setsQuery.orderByAscending("createdAt");
+//                                String strMachine = "", lastMachine = "";
+//
+//                                try {
+//                                    List<ParseObject> objects = setsQuery.find();
+//
+//                                    for(int i = 0; i < objects.size(); i++){
+//                                        ParseObject oneSet = objects.get(i);
+//
+//                                        ParseObject machine;
+//                                        ParseQuery<ParseObject> machineQuery = oneSet.getRelation("machineId").getQuery();
+//                                        try {
+//                                            machine = machineQuery.getFirst();
+//                                            strMachine = machine.get("name").toString();
+//                                            Log.i("MACHINE", strMachine);
+//
+//                                            if(i == 0) {
+//                                                wSum.append(String.format("<b>%s</b>", strMachine) + "<br>");
+//                                            } else if(!(lastMachine.compareTo(strMachine) == 0)) {
+//                                                wSum.append(String.format("<br>" + "<b>%s</b>", strMachine) + "<br>");
+//                                            }
+//
+//                                            //        printMach.add(machine.get("name").toString());
+//                                        } catch(ParseException e1) {
+//
+//                                        }
+//
+//                                        wSum.append("Reps: " + oneSet.get("repetitions").toString() + "&nbsp;&nbsp;&nbsp;&nbsp;");
+//                                        wSum.append("Weight: " + oneSet.get("resistance").toString() + " lbs" + "<br>");
+//
+//                                        //   printReps.add(oneSet.get("repetitions").toString());
+//                                        //   printRes.add(oneSet.get("resistance").toString());
+//
+//                                        //        Toast.makeText(WeightsActivity.this, reps, Toast.LENGTH_SHORT).show();
+//                                        //        Toast.makeText(WeightsActivity.this, res, Toast.LENGTH_SHORT).show();
+//
+//                                        lastMachine = strMachine;
+//                                    }
+//
+//                                } catch (ParseException e2) {
+//
+//                                }
+
+
+
+                                }
                         }
                     });
             builder1.setNegativeButton("No",
