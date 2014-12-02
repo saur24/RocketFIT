@@ -18,6 +18,8 @@ import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.Html;
@@ -63,9 +65,6 @@ public class WeightsActivity extends Activity {
     public int numberOfSets = 0;
     public List<EditText> allReps = new ArrayList<EditText>();
     public List<EditText> allWeights = new ArrayList<EditText>();
-    public List<String> printReps = new ArrayList<String>();
-    public List<String> printRes = new ArrayList<String>();
-    public List<String> printMach = new ArrayList<String>();
     public StringBuilder wSum = new StringBuilder();
 
 
@@ -229,12 +228,46 @@ public class WeightsActivity extends Activity {
                                 dialog.cancel();
                             } else {
 
+                                // dismiss the first dialog on "Yes" click
                                 dialog.dismiss();
-                                mLoading = ProgressDialog.show(WeightsActivity.this, "Working..", "Calculating Pi", true, false);
 
+                                // create a progress dialog
+                                mLoading = new ProgressDialog(WeightsActivity.this);
+                                mLoading.setMessage("Saving Data...");
+                                mLoading.setTitle("");
+                                mLoading.show();
+
+                                // Handler is called when thread is complete that sends data to parse below
+                                final Handler handler = new Handler() {
+                                    public void handleMessage(Message msg) {
+                                        mLoading.dismiss();  // dismiss the dialog
+                                        Toast.makeText(getApplicationContext(), "Workout saved!", Toast.LENGTH_SHORT).show();
+                                        AlertDialog.Builder workoutSummary = new AlertDialog.Builder(WeightsActivity.this);
+                                        workoutSummary.setTitle("Your Workout Summary");
+                                        workoutSummary.setMessage(Html.fromHtml(wSum.toString()));
+                                        workoutSummary.setCancelable(true);
+                                        workoutSummary.setPositiveButton("Close Summary",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+
+                                                        dialog.cancel();
+                                                        wSum.setLength(0);
+                                                        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                                        startActivity(intent);
+                                                        finish();
+
+                                                    }
+                                                });
+                                        AlertDialog alert2 = workoutSummary.create();
+                                        alert2.show();
+                                    }
+                                };
+
+                                // creates thread and sends user workout data to Parse
                                 Thread mThread = new Thread() {
                                     @Override
                                     public void run() {
+
                                         // Submit workout
                                         ParseUser currentUser = ParseUser.getCurrentUser();
 
@@ -253,7 +286,6 @@ public class WeightsActivity extends Activity {
                                         ParseQuery<ParseObject> setsQuery = workout.getRelation("sets").getQuery();
                                         setsQuery.orderByAscending("createdAt");
                                         String strMachine = "", lastMachine = "";
-
                                         try {
                                             List<ParseObject> objects = setsQuery.find();
 
@@ -272,8 +304,6 @@ public class WeightsActivity extends Activity {
                                                     } else if (!(lastMachine.compareTo(strMachine) == 0)) {
                                                         wSum.append(String.format("<br>" + "<b>%s</b>", strMachine) + "<br>");
                                                     }
-
-                                                    //        printMach.add(machine.get("name").toString());
                                                 } catch (ParseException e1) {
 
                                                 }
@@ -281,110 +311,16 @@ public class WeightsActivity extends Activity {
                                                 wSum.append("Reps: " + oneSet.get("repetitions").toString() + "&nbsp;&nbsp;&nbsp;&nbsp;");
                                                 wSum.append("Weight: " + oneSet.get("resistance").toString() + " lbs" + "<br>");
 
-                                                //   printReps.add(oneSet.get("repetitions").toString());
-                                                //   printRes.add(oneSet.get("resistance").toString());
-
-                                                //        Toast.makeText(WeightsActivity.this, reps, Toast.LENGTH_SHORT).show();
-                                                //        Toast.makeText(WeightsActivity.this, res, Toast.LENGTH_SHORT).show();
-
                                                 lastMachine = strMachine;
                                             }
 
                                         } catch (ParseException e2) {
 
                                         }
-                                        mLoading.dismiss();
+                                        handler.sendEmptyMessage(0); // sends message to handle after comple
                                     }
                                 };
                                 mThread.start();
-
-                                try {
-                                    mThread.join();
-                                    Toast.makeText(getApplicationContext(), "Workout saved!", Toast.LENGTH_SHORT).show();
-                                    AlertDialog.Builder workoutSummary = new AlertDialog.Builder(WeightsActivity.this);
-                                    workoutSummary.setTitle("Your Workout Summary");
-                                    workoutSummary.setMessage(Html.fromHtml(wSum.toString()));
-                                    workoutSummary.setCancelable(true);
-                                    workoutSummary.setPositiveButton("Close Summary",
-                                            new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface dialog, int id) {
-
-                                                    dialog.cancel();
-                                                    wSum.setLength(0);
-                                                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-                                                    startActivity(intent);
-                                                    finish();
-
-                                                }
-                                            });
-                                    AlertDialog alert2 = workoutSummary.create();
-                                    alert2.show();
-                                } catch(Exception e) {
-
-                                }
-
-//                                // Submit workout
-//                                ParseUser currentUser = ParseUser.getCurrentUser();
-//
-//                                //get current date time with Date()
-//                                Date date = new Date();
-//                                workout.put("finishedAt", date);
-//
-//                                ParseRelation<ParseObject> userRelation = currentUser.getRelation("workouts");
-//                                userRelation.add(workout);
-//
-//                                // save the user
-//                                currentUser.saveInBackground();
-//                                // save the workout
-//                                workout.saveInBackground();
-//                                Toast.makeText(getApplicationContext(),"Workout saved!",Toast.LENGTH_SHORT).show();
-//
-//                                ParseQuery<ParseObject> setsQuery = workout.getRelation("sets").getQuery();
-//                                setsQuery.orderByAscending("createdAt");
-//                                String strMachine = "", lastMachine = "";
-//
-//                                try {
-//                                    List<ParseObject> objects = setsQuery.find();
-//
-//                                    for(int i = 0; i < objects.size(); i++){
-//                                        ParseObject oneSet = objects.get(i);
-//
-//                                        ParseObject machine;
-//                                        ParseQuery<ParseObject> machineQuery = oneSet.getRelation("machineId").getQuery();
-//                                        try {
-//                                            machine = machineQuery.getFirst();
-//                                            strMachine = machine.get("name").toString();
-//                                            Log.i("MACHINE", strMachine);
-//
-//                                            if(i == 0) {
-//                                                wSum.append(String.format("<b>%s</b>", strMachine) + "<br>");
-//                                            } else if(!(lastMachine.compareTo(strMachine) == 0)) {
-//                                                wSum.append(String.format("<br>" + "<b>%s</b>", strMachine) + "<br>");
-//                                            }
-//
-//                                            //        printMach.add(machine.get("name").toString());
-//                                        } catch(ParseException e1) {
-//
-//                                        }
-//
-//                                        wSum.append("Reps: " + oneSet.get("repetitions").toString() + "&nbsp;&nbsp;&nbsp;&nbsp;");
-//                                        wSum.append("Weight: " + oneSet.get("resistance").toString() + " lbs" + "<br>");
-//
-//                                        //   printReps.add(oneSet.get("repetitions").toString());
-//                                        //   printRes.add(oneSet.get("resistance").toString());
-//
-//                                        //        Toast.makeText(WeightsActivity.this, reps, Toast.LENGTH_SHORT).show();
-//                                        //        Toast.makeText(WeightsActivity.this, res, Toast.LENGTH_SHORT).show();
-//
-//                                        lastMachine = strMachine;
-//                                    }
-//
-//                                } catch (ParseException e2) {
-//
-//                                }
-
-
-
                                 }
                         }
                     });
