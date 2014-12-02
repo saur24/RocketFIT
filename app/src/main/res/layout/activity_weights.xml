@@ -21,14 +21,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/selectMachine"
-        android:entries="@array/machines"
-        android:visibility="gone" />
+        android:entries="@array/machines" />
 
     <ImageView
         android:id="@+id/machinePic"
         android:src="@drawable/weight"
-        android:layout_width="175dp"
-        android:layout_height="175dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
         android:contentDescription="Machine Pic"
         android:layout_marginTop="10dp"
@@ -65,31 +64,33 @@
         android:layout_height="30dp"
         android:layout_gravity="start"
         android:background="@drawable/ic_action_new"
-        android:onClick="addSet"/>
+        android:onClick="addSet" />
 
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="fill_parent"
         android:layout_height="match_parent">
-    <LinearLayout
-        android:id="@+id/workoutLinLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <TableLayout
-            android:id="@+id/workoutTable"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:baselineAligned="false">
-        </TableLayout>
-        <Button
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Submit Sets"
-            android:id="@+id/submit"
-            android:onClick="submitSets"
-            android:visibility="gone"/>
-    </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/workoutLinLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TableLayout
+                android:id="@+id/workoutTable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"></TableLayout>
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Submit Sets"
+                android:id="@+id/submit"
+                android:onClick="submitSets"
+                android:visibility="gone" />
+        </LinearLayout>
     </ScrollView>
 
 </LinearLayout>

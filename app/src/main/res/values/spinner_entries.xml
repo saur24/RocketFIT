@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <string-array name="lanes">
+        <item name="one">1</item>
+        <item name="two">2</item>
+        <item name="three">3</item>
+        <item name="four">4</item>
+    </string-array>
+
     <string-array name="machines">
         <item name="weight">Select a machine</item>
         <item name="cybex_rotary_torso">Cybex - Rotary Torso</item>

@@ -1,23 +1,15 @@
 package com.rocketfit.activities;
 
 import android.app.ActionBar;
-import android.app.Activity;
-import android.app.Fragment;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -36,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import projects.rocketfit.R;
-import twitter4j.Status;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
@@ -188,9 +179,8 @@ public class HomeActivity extends ListActivity
     public void onRunSelected(View view) {
         //run button was pressed
         //Toast.makeText(HomeActivity.this, "run", Toast.LENGTH_SHORT).show();
-//        Intent run = new Intent(getApplicationContext(), RunActivity.class);
-//        startActivity(run);
-//        finish();
+        Intent run = new Intent(getApplicationContext(), RunActivity.class);
+        startActivity(run);
     }
 
     @Override
@@ -209,8 +199,8 @@ public class HomeActivity extends ListActivity
 
             case 2:
                 //Run/Walk
-//                Intent weights = new Intent(getApplicationContext(), WeightsActivity.class);
-//                startActivity(weights);
+                Intent run = new Intent(getApplicationContext(), RunActivity.class);
+                startActivity(run);
                 break;
             case 3:
                 //Weights
@@ -220,6 +210,7 @@ public class HomeActivity extends ListActivity
         }
     }
 
+    // NOT USED
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:
@@ -307,48 +298,9 @@ public class HomeActivity extends ListActivity
             return tweets;
         }
 
-        protected void onPostExecute(List<twitter4j.Status> result){
+        protected void onPostExecute(List<twitter4j.Status> result) {
             setListAdapter(new TweetListAdapter(HomeActivity.this, result));
         }
-    }
-    /**
-     * WE DON'T EVEN USE THIS
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_home, container, false);
-            return rootView;
-        }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((HomeActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
-        }
     }
 }

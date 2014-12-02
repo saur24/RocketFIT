@@ -1,21 +1,13 @@
 package com.rocketfit.fragments;
 
-import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.app.Fragment;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-
-import com.rocketfit.activities.ProfileActivity;
 
 import projects.rocketfit.R;
 
@@ -37,7 +29,7 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
         recentWorkouts = (ListView) recentItems.findViewById(R.id.recentWorkouts);
 
         // Defined Array values to show in ListView
-        String[] values = new String[] { "Workout 1",
+        String[] values = new String[]{"Workout 1",
                 "Workout 2",
                 "Workout 3",
                 "Workout 4",
@@ -52,7 +44,7 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
         // Second parameter - Layout for the row
         // Third parameter - ID of the TextView to which the data is written
         // Forth - the Array of data
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),R.layout.custom, R.id.listTextView, values);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.custom, R.id.listTextView, values);
 
         // Assign adapter to ListView
         recentWorkouts.setAdapter(adapter);
@@ -65,10 +57,10 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
                                     int position, long id) {
 
                 // ListView Clicked item index
-                int itemPosition     = position;
+                int itemPosition = position;
 
                 // ListView Clicked item value
-                String  itemValue    = (String) recentWorkouts.getItemAtPosition(position);
+                String itemValue = (String) recentWorkouts.getItemAtPosition(position);
 
                 // Show Alert
                 Toast.makeText(getActivity().getApplicationContext(),
@@ -77,8 +69,8 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
             }
 
         });
-       // TextView tv = (TextView) v.findViewById(R.id.text);
-      //  tv.setText(this.getTag() + " Content");
+        // TextView tv = (TextView) v.findViewById(R.id.text);
+        //  tv.setText(this.getTag() + " Content");
         return recentItems;
     }
 
