@@ -160,6 +160,8 @@ public class ProfileActivity extends FragmentActivity {
         mTabHost.addTab(
                 mTabHost.newTabSpec("tab4").setIndicator("Stats", null),
                 TabThreeFragment.class, null);
+
+
     }
 
     @Override

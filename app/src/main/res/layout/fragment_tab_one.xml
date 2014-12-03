@@ -7,12 +7,20 @@
     android:background="#eaecee"
     android:clickable="false">
 
+    <ProgressBar
+        style="?android:attr/progressBarStyle"
+        android:id="@+id/progressbar_loading"
+        android:visibility="gone"
+        android:paddingTop="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/recentWorkouts"
         android:layout_gravity="center_horizontal"
-        android:paddingLeft="10dp"
-        android:textColor="#000000"        />
+        android:textColor="#000000"
+    />
 
 </LinearLayout>

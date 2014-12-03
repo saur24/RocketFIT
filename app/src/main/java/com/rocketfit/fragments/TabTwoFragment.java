@@ -24,7 +24,7 @@ public class TabTwoFragment extends android.support.v4.app.Fragment {
         View v = inflater.inflate(R.layout.fragment_tab_two, container, false);
         TextView tv = (TextView) v.findViewById(R.id.text);
         //tv.setText(this.getTag() + " Content");
-        tv.setText("You've got no friends :'(");
+        tv.setText("Coming soon...");
         return v;
     }
 
