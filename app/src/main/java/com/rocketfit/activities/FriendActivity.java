@@ -67,7 +67,7 @@ public class FriendActivity extends FragmentActivity {
         userNameView    = (TextView)  findViewById(R.id.userNameView);
         memberSinceView = (TextView)  findViewById(R.id.memberSinceView);
 
-        String friend;
+        String friend = "";
         Bundle extras= getIntent().getExtras();
         if(extras!=null)
         {
@@ -111,21 +111,26 @@ public class FriendActivity extends FragmentActivity {
             });
         }
 
+        // attempt to send current user to tab Fragment
+        Bundle b = new Bundle();
+        b.putString("user", friend);
+        //
+
         mTabHost = (FragmentTabHost) findViewById(android.R.id.tabhost);
         mTabHost.setup(this, getSupportFragmentManager(), android.R.id.tabcontent);
 
         mTabHost.addTab(
                 mTabHost.newTabSpec("tab1").setIndicator("Recent", null),
-                TabOneFragment.class, null);
+                TabOneFragment.class, b);
         mTabHost.addTab(
                 mTabHost.newTabSpec("tab2").setIndicator("Friends", null),
-                TabTwoFragment.class, null);
+                TabTwoFragment.class, b);
         mTabHost.addTab(
                 mTabHost.newTabSpec("tab3").setIndicator("Awards", null),
-                TabThreeFragment.class, null);
+                TabThreeFragment.class, b);
         mTabHost.addTab(
                 mTabHost.newTabSpec("tab4").setIndicator("Stats", null),
-                TabThreeFragment.class, null);
+                TabThreeFragment.class, b);
     }
 
 

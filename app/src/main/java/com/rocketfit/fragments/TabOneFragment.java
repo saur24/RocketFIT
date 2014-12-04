@@ -13,8 +13,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -25,12 +27,11 @@ import java.util.List;
 
 import projects.rocketfit.R;
 
-
-
 public class TabOneFragment extends android.support.v4.app.Fragment {
     public static int NUMBER_OF_RECENT_WORKOUTS = 5;
     private ListView recentWorkouts;
     private View recentItems;
+    public ParseUser userToQuery;
 
     ArrayList<StringBuilder> wSum = new ArrayList<StringBuilder>();
     ArrayList<String> values = new ArrayList<String>();
@@ -54,6 +55,9 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        final String user = getArguments().getString("user");
+ //       Toast.makeText(getActivity(), user, Toast.LENGTH_SHORT).show();
 
         if (recentItems == null) {
 
@@ -120,7 +124,21 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
                     // Submit workout
                     ParseUser currentUser = ParseUser.getCurrentUser();
 
-                    ParseQuery<ParseObject> workoutQuery = currentUser.getRelation("workouts").getQuery();
+                    if (user == currentUser.getUsername()) {
+                        userToQuery = currentUser;
+                    } else {
+                        ParseQuery<ParseUser> query = ParseQuery.getQuery("_User");
+                        query.whereEqualTo("username", user);
+                        try {
+                            ParseUser searchedUser = query.getFirst();
+                            userToQuery = searchedUser;
+
+                        } catch(ParseException userException) {
+
+                        }
+                    }
+
+                    ParseQuery<ParseObject> workoutQuery = userToQuery.getRelation("workouts").getQuery();
                     workoutQuery.orderByDescending("createdAt");
                     workoutQuery.setLimit(NUMBER_OF_RECENT_WORKOUTS);
                     try {

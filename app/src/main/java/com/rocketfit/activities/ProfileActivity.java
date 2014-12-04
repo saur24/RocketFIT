@@ -53,6 +53,7 @@ import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.rocketfit.fragments.TabFourFragment;
 import com.rocketfit.fragments.TabOneFragment;
 import com.rocketfit.fragments.TabThreeFragment;
 import com.rocketfit.fragments.TabTwoFragment;
@@ -145,21 +146,26 @@ public class ProfileActivity extends FragmentActivity {
             userNameView.setText(currentUser.get("fullname").toString());
         }
 
+        // attempt to send current user to tab Fragment
+        Bundle b = new Bundle();
+        b.putString("user", currentUser.getUsername());
+        //
+
         mTabHost = (FragmentTabHost) findViewById(android.R.id.tabhost);
         mTabHost.setup(this, getSupportFragmentManager(), android.R.id.tabcontent);
 
         mTabHost.addTab(
                 mTabHost.newTabSpec("tab1").setIndicator("Recent", null),
-                TabOneFragment.class, null);
+                TabOneFragment.class, b);
         mTabHost.addTab(
                 mTabHost.newTabSpec("tab2").setIndicator("Friends", null),
-                TabTwoFragment.class, null);
+                TabTwoFragment.class, b);
         mTabHost.addTab(
                 mTabHost.newTabSpec("tab3").setIndicator("Awards", null),
-                TabThreeFragment.class, null);
+                TabThreeFragment.class, b);
         mTabHost.addTab(
                 mTabHost.newTabSpec("tab4").setIndicator("Stats", null),
-                TabThreeFragment.class, null);
+                TabFourFragment.class, b);
 
 
     }
