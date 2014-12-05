@@ -306,6 +306,7 @@ public class ProfileActivity extends FragmentActivity {
                     } else
                         profileImage.setImageBitmap(Image);
             } else {
+                    Toast.makeText(ProfileActivity.this, "Unable to use Google Drive Photos.\nPlease select a different photo!", Toast.LENGTH_SHORT).show();
                     profileImage.setImageBitmap(Image);
                 }
             } catch (FileNotFoundException e) {
