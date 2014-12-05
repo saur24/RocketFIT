@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.app.TaskStackBuilder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -63,7 +64,6 @@ public class WeightsActivity extends Activity {
     public List<EditText> allReps = new ArrayList<EditText>();
     public List<EditText> allWeights = new ArrayList<EditText>();
     public StringBuilder wSum = new StringBuilder();
-
 
     private ProgressDialog mLoading;
     private TextView mMachineName;
@@ -147,6 +147,23 @@ public class WeightsActivity extends Activity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+
+        Intent upIntent = NavUtils.getParentActivityIntent(this);
+        // if this activity was started by an NFC tag, create backstack, else, normal back nav
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+            // Adds the back stack
+            TaskStackBuilder.create(this)
+                    // Add all of this activity's parents to the back stack
+                    .addNextIntentWithParentStack(upIntent)
+                            // Navigate up to the closest parent
+                    .startActivities();
+            finish();
+        } else
+            super.onBackPressed();
+    }
+
     private void handleIntent(Intent intent) {
 
         String type = intent.getType();
@@ -169,7 +186,7 @@ public class WeightsActivity extends Activity {
          * Call this before onPause, otherwise an IllegalArgumentException is thrown as well.
          */
         if (mNfcAdapter != null) {
-            //stopForegroundDispatch(this, mNfcAdapter);
+            stopForegroundDispatch(this, mNfcAdapter);
         }
         super.onPause();
     }
@@ -183,7 +200,7 @@ public class WeightsActivity extends Activity {
          * an IllegalStateException is thrown.
          */
         if (mNfcAdapter != null) {
-            // setupForegroundDispatch(this, mNfcAdapter);
+            setupForegroundDispatch(this, mNfcAdapter);
         }
     }
 
@@ -207,7 +224,18 @@ public class WeightsActivity extends Activity {
         }
 
         if (id == android.R.id.home) {
-            NavUtils.navigateUpFromSameTask(this);
+            Intent upIntent = NavUtils.getParentActivityIntent(this);
+            // if this activity was started by an NFC tag, create backstack, else, normal back nav
+            if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+                // Adds the back stack
+                TaskStackBuilder.create(this)
+                        // Add all of this activity's parents to the back stack
+                        .addNextIntentWithParentStack(upIntent)
+                                // Navigate up to the closest parent
+                        .startActivities();
+                finish();
+            } else
+                NavUtils.navigateUpFromSameTask(this);
             return true;
         }
 
@@ -350,91 +378,6 @@ public class WeightsActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class NdefReaderTask extends AsyncTask<Tag, Void, String> {
-        @Override
-        protected String doInBackground(Tag... params) {
-            Tag tag = params[0];
-
-            Ndef ndef = Ndef.get(tag);
-            if (ndef == null) {
-                // NDEF is not supported by this Tag.
-                return null;
-            }
-
-            NdefMessage ndefMessage = ndef.getCachedNdefMessage();
-
-            NdefRecord[] records = ndefMessage.getRecords();
-            for (NdefRecord ndefRecord : records) {
-                if (ndefRecord.getTnf() == NdefRecord.TNF_WELL_KNOWN && Arrays.equals(ndefRecord.getType(), NdefRecord.RTD_TEXT)) {
-                    try {
-                        return readText(ndefRecord);
-                    } catch (UnsupportedEncodingException e) {
-                        Log.e(TAG, "Unsupported Encoding", e);
-                    }
-                }
-            }
-            return null;
-        }
-
-        private String readText(NdefRecord record) throws UnsupportedEncodingException {
-        /*
-         * See NFC forum specification for "Text Record Type Definition" at 3.2.1
-         *
-         * http://www.nfc-forum.org/specs/
-         *
-         * bit_7 defines encoding
-         * bit_6 reserved for future use, must be 0
-         * bit_5..0 length of IANA language code
-         */
-
-            byte[] payload = record.getPayload();
-
-            // Get the Text Encoding
-            String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
-
-            // Get the Language Code
-            int languageCodeLength = payload[0] & 0063;
-
-            // String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
-            // e.g. "en"
-
-            // Get the Text
-            return new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            String text = null, name;
-
-            if (result != null) {
-                //set machine name
-                name = "string/" + result;
-                int nameId = getResources().getIdentifier(name, null, getPackageName());
-                text = getResources().getString(nameId);
-                mMachineName.setText(text);
-            }
-            //set imageview to drawable of machine
-            String uri = "drawable/" + result;
-            int machineImageResource = getResources().getIdentifier(uri, null, getPackageName());
-
-            try {
-                Drawable machine = getResources().getDrawable(machineImageResource);
-                mMachineImage.setImageDrawable(machine);
-            } catch (Resources.NotFoundException e) {
-                Toast.makeText(WeightsActivity.this, "No image found.", Toast.LENGTH_SHORT).show();
-            }
-
-            //set spinner to position of machine
-
-            ArrayAdapter<CharSequence> adapter = ArrayAdapter
-                    .createFromResource(WeightsActivity.this, R.array.machines,
-                            android.R.layout.simple_spinner_item);
-            int position = adapter.getPosition(text);
-            mSelectMachine.setSelection(position);
-            position = 0;
-        }
-    }
-
     public void addSet(View view) {
         //add new set
         if (numberOfSets > 0 && (allReps.get(numberOfSets - 1).getText().toString().matches("") || allWeights.get(numberOfSets - 1).getText().toString().matches(""))) {
@@ -557,6 +500,91 @@ public class WeightsActivity extends Activity {
             mSubmit.setVisibility(View.GONE);
         }
 
+    }
+
+    private class NdefReaderTask extends AsyncTask<Tag, Void, String> {
+        @Override
+        protected String doInBackground(Tag... params) {
+            Tag tag = params[0];
+
+            Ndef ndef = Ndef.get(tag);
+            if (ndef == null) {
+                // NDEF is not supported by this Tag.
+                return null;
+            }
+
+            NdefMessage ndefMessage = ndef.getCachedNdefMessage();
+
+            NdefRecord[] records = ndefMessage.getRecords();
+            for (NdefRecord ndefRecord : records) {
+                if (ndefRecord.getTnf() == NdefRecord.TNF_WELL_KNOWN && Arrays.equals(ndefRecord.getType(), NdefRecord.RTD_TEXT)) {
+                    try {
+                        return readText(ndefRecord);
+                    } catch (UnsupportedEncodingException e) {
+                        Log.e(TAG, "Unsupported Encoding", e);
+                    }
+                }
+            }
+            return null;
+        }
+
+        private String readText(NdefRecord record) throws UnsupportedEncodingException {
+        /*
+         * See NFC forum specification for "Text Record Type Definition" at 3.2.1
+         *
+         * http://www.nfc-forum.org/specs/
+         *
+         * bit_7 defines encoding
+         * bit_6 reserved for future use, must be 0
+         * bit_5..0 length of IANA language code
+         */
+
+            byte[] payload = record.getPayload();
+
+            // Get the Text Encoding
+            String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
+
+            // Get the Language Code
+            int languageCodeLength = payload[0] & 0063;
+
+            // String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
+            // e.g. "en"
+
+            // Get the Text
+            return new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            String text = null, name;
+
+            if (result != null) {
+                //set machine name
+                name = "string/" + result;
+                int nameId = getResources().getIdentifier(name, null, getPackageName());
+                text = getResources().getString(nameId);
+                mMachineName.setText(text);
+            }
+            //set imageview to drawable of machine
+            String uri = "drawable/" + result;
+            int machineImageResource = getResources().getIdentifier(uri, null, getPackageName());
+
+            try {
+                Drawable machine = getResources().getDrawable(machineImageResource);
+                mMachineImage.setImageDrawable(machine);
+            } catch (Resources.NotFoundException e) {
+                Toast.makeText(WeightsActivity.this, "No image found.", Toast.LENGTH_SHORT).show();
+            }
+
+            //set spinner to position of machine
+
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter
+                    .createFromResource(WeightsActivity.this, R.array.machines,
+                            android.R.layout.simple_spinner_item);
+            int position = adapter.getPosition(text);
+            mSelectMachine.setSelection(position);
+            position = 0;
+        }
     }
 
     private class SpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {

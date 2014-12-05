@@ -3,13 +3,20 @@ package com.rocketfit.activities;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Chronometer;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
+import com.estimote.sdk.Utils;
 
 import java.util.List;
 
@@ -20,24 +27,116 @@ public class RunActivity extends Activity {
     private static final String TAG = "BEACON";
     private static final String ESTIMOTE_PROXIMITY_UUID = "B9407F30-F5F8-466E-AFF9-25556B57FE6D";
     private static final Region ALL_ESTIMOTE_BEACONS = new Region("regionId", ESTIMOTE_PROXIMITY_UUID, null, null);
+
+    Chronometer chrono;
+    TextView debug;
+    Button btnStart;
+    Button btnStop;
+    Button btnReset;
+    long lastStop = 0;
+    Boolean resume = false;
+    short lapCount = 0;
+    int beaconHits = 0;
+
     private BeaconManager beaconManager = new BeaconManager(this);
+
+    private void newLap() {
+        if (beaconHits % 4 == 0)
+            lapCount++;
+    }
+
+    public void onClick(View v) {
+        switch (v.getId()) {
+
+            case R.id.btnStart:
+
+                if (resume) {
+                    chrono.setBase(chrono.getBase() + SystemClock.elapsedRealtime() - lastStop);
+                    chrono.start();
+                } else {
+                    chrono.setBase(SystemClock.elapsedRealtime());
+                    chrono.start();
+                }
+
+                btnStart.setEnabled(false);
+                btnStop.setEnabled(true);
+                break;
+
+            case R.id.btnStop:
+
+                lastStop = SystemClock.elapsedRealtime();
+                chrono.stop();
+                resume = true;
+
+                btnStart.setText("Resume");
+                btnStart.setEnabled(true);
+                btnStop.setEnabled(false);
+                btnReset.setEnabled(true);
+                break;
+
+            case R.id.btnReset:
+
+                chrono.stop();
+                chrono.setText("00:00");
+                resume = false;
+
+                btnStart.setText("Start");
+                btnStart.setEnabled(true);
+                btnStop.setEnabled(false);
+                btnReset.setEnabled(false);
+                break;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_run);
 
-        // Should be invoked in #onCreate.
+        chrono = (Chronometer) findViewById(R.id.chrono);
+        btnStart = (Button) findViewById(R.id.btnStart);
+        btnStop = (Button) findViewById(R.id.btnStop);
+        btnReset = (Button) findViewById(R.id.btnReset);
+        debug = (TextView) findViewById(R.id.debugText);
+
+        btnStop.setEnabled(false);
+        btnReset.setEnabled(false);
+
+        // default scanPeriod = 1s, waitTime = 0s
+        // setting scanPeriod = 500ms (0.5s), waitTime = 0s
+        beaconManager.setForegroundScanPeriod(300, 0);
         beaconManager.setRangingListener(new BeaconManager.RangingListener() {
             @Override
             public void onBeaconsDiscovered(Region region, List<Beacon> beacons) {
                 Log.d(TAG, "Ranged beacons: " + beacons);
+                if (beacons.size() > 0) {
+                    debug.setText(String.valueOf(Utils.computeAccuracy(beacons.get(0)))
+                            + "\n" + Utils.computeProximity(beacons.get(0)));
+
+                    // need to set threshold for logging time
+
+                }
             }
         });
 
-        // default scanPeriod = 1s, waitTime = 0s
-        // setting scanPeriod = 500ms (0.5s), waitTime = 0s
-        beaconManager.setForegroundScanPeriod(500, 0);
+
+        // testing monitoring vs ranging
+        // log time on enter and on exit, take the average?
+        beaconManager.setBackgroundScanPeriod(500, 0);
+        beaconManager.setMonitoringListener(new BeaconManager.MonitoringListener() {
+            @Override
+            public void onEnteredRegion(Region region, List<Beacon> beacons) {
+                Log.d(TAG, "Entered beacon region: " + beacons);
+                Toast.makeText(getApplicationContext(), "Entered beacon region.", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onExitedRegion(Region region) {
+                Log.d(TAG, "Exited beacon region.");
+                Toast.makeText(getApplicationContext(), "Exited beacon region.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     @Override
@@ -50,9 +149,10 @@ public class RunActivity extends Activity {
             public void onServiceReady() {
                 try {
                     beaconManager.startRanging(ALL_ESTIMOTE_BEACONS);
-                    Log.i(TAG, "Ranging started.");
+//                    beaconManager.startMonitoring(ALL_ESTIMOTE_BEACONS);
+                    Log.i(TAG, "Ranging/monitoring started.");
                 } catch (RemoteException e) {
-                    Log.e(TAG, "Cannot start ranging", e);
+                    Log.e(TAG, "Cannot start ranging/monitoring", e);
                 }
             }
         });
@@ -64,7 +164,8 @@ public class RunActivity extends Activity {
         // Should be invoked in #onStop.
         try {
             beaconManager.stopRanging(ALL_ESTIMOTE_BEACONS);
-            Log.i(TAG, "Ranging stopped.");
+//            beaconManager.stopMonitoring(ALL_ESTIMOTE_BEACONS);
+            Log.i(TAG, "Ranging/monitoring stopped.");
         } catch (RemoteException e) {
             Log.e(TAG, "Cannot stop but it does not matter now", e);
         }

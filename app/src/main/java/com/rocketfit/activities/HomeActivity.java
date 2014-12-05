@@ -53,7 +53,6 @@ public class HomeActivity extends ListActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
 
         ParseFacebookUtils.initialize("844747758892958");
@@ -72,6 +71,7 @@ public class HomeActivity extends ListActivity
         }
 
         setContentView(R.layout.activity_home);
+
         mLoading=(ProgressBar)findViewById(R.id.progressbar_loading);
         eMessage=(TextView)findViewById(R.id.errorMessage);
 
