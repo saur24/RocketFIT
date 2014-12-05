@@ -61,6 +61,8 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.Toast;
 
 
+
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -72,6 +74,8 @@ import java.util.Date;
 import projects.rocketfit.R;
 
 public class ProfileActivity extends FragmentActivity {
+    static final String TAG = "FileUtils";
+    private static final boolean DEBUG = false; // Set to true to enable logging
     public static final int KITKAT_VALUE = 1002;
     private static Bitmap Image = null;
     private static Bitmap rotateImage = null;
@@ -406,6 +410,11 @@ public class ProfileActivity extends FragmentActivity {
         }
         // MediaStore (and general)
         else if ("content".equalsIgnoreCase(uri.getScheme())) {
+
+            // Return the remote address
+            if (isGooglePhotosUri(uri))
+                return uri.getLastPathSegment();
+
             return getDataColumn(context, uri, null, null);
         }
         // File
@@ -472,6 +481,15 @@ public class ProfileActivity extends FragmentActivity {
     public static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is Google Photos.
+     */
+    public static boolean isGooglePhotosUri(Uri uri) {
+        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+    }
+
 
     public static Bitmap decodeSampledBitmapFromPath(String path, int reqWidth,
                                                      int reqHeight) {
