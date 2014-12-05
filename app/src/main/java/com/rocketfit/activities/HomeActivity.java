@@ -18,7 +18,7 @@ import com.facebook.model.GraphUser;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
-import com.rocketfit.TweetListAdapter;
+import com.rocketfit.adapters.TweetListAdapter;
 import com.rocketfit.fragments.NavigationDrawerFragment;
 
 import org.json.JSONException;
@@ -292,7 +292,6 @@ public class HomeActivity extends ListActivity
             } catch (TwitterException te) {
                 te.printStackTrace();
                 System.out.println("Failed to get timeline: " + te.getMessage());
-                System.exit(-1);
             }
 
             return tweets;
