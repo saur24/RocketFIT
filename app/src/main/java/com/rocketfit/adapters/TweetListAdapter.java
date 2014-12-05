@@ -1,4 +1,4 @@
-package com.rocketfit;
+package com.rocketfit.adapters;
 
 /**
  * Created by Matt on 11/24/2014.

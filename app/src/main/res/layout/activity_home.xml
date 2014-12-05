@@ -62,6 +62,13 @@
                 tools:listitem="@layout/list_item"
                 android:dividerHeight="2dp"
             />
+            <TextView android:id="@android:id/empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#dddddd"
+                android:gravity="center"
+                android:text="No Tweets available. Check your data connection."
+                android:textAlignment="center"/>
         </LinearLayout>
 
     </FrameLayout>
