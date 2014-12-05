@@ -294,7 +294,7 @@ public class ProfileActivity extends FragmentActivity {
                 Image = BitmapFactory.decodeFileDescriptor(fileDescriptor.getFileDescriptor(), null, options);
 
                 // Image = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageUri);
-                if (!isGooglePhotosUri(profileImgUri)) {
+                if (!isGoogleDriveUri(profileImgUri)) {
                     if (getOrientation(getApplicationContext(), mImageUri) != 0) {
                         Matrix matrix = new Matrix();
                         matrix.postRotate(getOrientation(getApplicationContext(), mImageUri));
@@ -492,6 +492,14 @@ public class ProfileActivity extends FragmentActivity {
      */
     public static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is Google Photos.
+     */
+    public static boolean isGoogleDriveUri(Uri uri) {
+        return "com.google.android.apps.docs.storage".equals(uri.getAuthority());
     }
 
 
