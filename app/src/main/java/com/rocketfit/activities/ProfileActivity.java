@@ -293,17 +293,21 @@ public class ProfileActivity extends FragmentActivity {
 
                 Image = BitmapFactory.decodeFileDescriptor(fileDescriptor.getFileDescriptor(), null, options);
 
-               // Image = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageUri);
-                if (getOrientation(getApplicationContext(), mImageUri) != 0) {
-                    Matrix matrix = new Matrix();
-                    matrix.postRotate(getOrientation(getApplicationContext(), mImageUri));
-                    if (rotateImage != null)
-                        rotateImage.recycle();
-                    rotateImage = Bitmap.createBitmap(Image, 0, 0, Image.getWidth(), Image.getHeight(), matrix,true);
-                    Image = rotateImage;
+                // Image = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageUri);
+                if (!isGooglePhotosUri(profileImgUri)) {
+                    if (getOrientation(getApplicationContext(), mImageUri) != 0) {
+                        Matrix matrix = new Matrix();
+                        matrix.postRotate(getOrientation(getApplicationContext(), mImageUri));
+                        if (rotateImage != null)
+                            rotateImage.recycle();
+                        rotateImage = Bitmap.createBitmap(Image, 0, 0, Image.getWidth(), Image.getHeight(), matrix, true);
+                        Image = rotateImage;
+                        profileImage.setImageBitmap(Image);
+                    } else
+                        profileImage.setImageBitmap(Image);
+            } else {
                     profileImage.setImageBitmap(Image);
-                } else
-                    profileImage.setImageBitmap(Image);
+                }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
