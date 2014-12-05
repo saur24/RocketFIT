@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.app.Activity;
 import java.util.List;
@@ -18,6 +19,7 @@ import twitter4j.Status;
 
 public class TweetListAdapter extends ArrayAdapter {
     private Context context;
+    private ProgressBar mLoading;
     private boolean useList = true;
     public TweetListAdapter(Context context, List items) {
         super(context, android.R.layout.simple_list_item_1, items);
@@ -39,6 +41,8 @@ public class TweetListAdapter extends ArrayAdapter {
         if (convertView == null) {
             if(useList){
                 viewToUse = mInflater.inflate(R.layout.list_item, null);
+             //   mLoading = (ProgressBar) list.findViewById(R.id.progressbar_loading);
+             //   mLoading.setVisibility(View.GONE);
             }
 
             holder = new ViewHolder();

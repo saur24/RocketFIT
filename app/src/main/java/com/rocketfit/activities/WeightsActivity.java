@@ -313,6 +313,9 @@ public class WeightsActivity extends Activity {
                                         } catch (ParseException e2) {
 
                                         }
+
+                                        // Add run query
+
                                         handler.sendEmptyMessage(0); // sends message to handle after comple
                                     }
                                 };

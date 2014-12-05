@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -45,9 +47,14 @@ public class HomeActivity extends ListActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+    private ProgressBar mLoading;
+    private TextView eMessage;
+    private boolean twitWorks = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
 
         ParseFacebookUtils.initialize("844747758892958");
         ParseTwitterUtils.initialize("m2pJ8sVhK9Op5IpDEMFqAbrzp", "kzf5u8iMkBe6zvXdCPnAuz799rh9c07MYQsODwqGxsgtAOhwKC");
@@ -64,10 +71,9 @@ public class HomeActivity extends ListActivity
             ParseUser.getCurrentUser().saveEventually();
         }
 
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
-        super.onCreate(savedInstanceState);
+        mLoading=(ProgressBar)findViewById(R.id.progressbar_loading);
+        eMessage=(TextView)findViewById(R.id.errorMessage);
 
         new GetTweets().execute(null, null, null);
 
@@ -273,7 +279,6 @@ public class HomeActivity extends ListActivity
     private class GetTweets extends AsyncTask<String, String, List<twitter4j.Status>> {
         @Override
         protected List<twitter4j.Status> doInBackground(String... strings) {
-
             ConfigurationBuilder cb = new ConfigurationBuilder();
             cb.setDebugEnabled(true)
                     .setOAuthConsumerKey("m2pJ8sVhK9Op5IpDEMFqAbrzp")
@@ -292,12 +297,18 @@ public class HomeActivity extends ListActivity
             } catch (TwitterException te) {
                 te.printStackTrace();
                 System.out.println("Failed to get timeline: " + te.getMessage());
+                twitWorks = false;
             }
 
             return tweets;
         }
 
         protected void onPostExecute(List<twitter4j.Status> result) {
+            if (!twitWorks) {
+                eMessage.setVisibility(View.VISIBLE);
+                eMessage.setText("Failed to get News Feed!\nPlease check your Internet connection.");
+            }
+            mLoading.setVisibility(View.GONE);
             setListAdapter(new TweetListAdapter(HomeActivity.this, result));
         }
 

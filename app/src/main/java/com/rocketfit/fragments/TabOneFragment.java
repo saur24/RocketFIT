@@ -1,7 +1,10 @@
 package com.rocketfit.fragments;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -31,6 +35,8 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
     public static int NUMBER_OF_RECENT_WORKOUTS = 5;
     private ListView recentWorkouts;
     private View recentItems;
+    private TextView eMessage;
+    private boolean onStopCalled = false;
     public ParseUser userToQuery;
 
     ArrayList<StringBuilder> wSum = new ArrayList<StringBuilder>();
@@ -41,15 +47,26 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        onStopCalled = false;
 
+        super.onCreate(savedInstanceState);
     }
 
     @Override
     public void onResume() {
+        onStopCalled = false;
+
         super.onResume();
 
         // Do nothing.. keep it the same
+    }
+
+    @Override
+    public void onStop() {
+        onStopCalled = true;
+
+
+        super.onStop();
     }
 
     @Override
@@ -65,11 +82,22 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
 
             mLoading = (ProgressBar) recentItems.findViewById(R.id.progressbar_loading);
             mLoading.setVisibility(View.VISIBLE);
+            eMessage=(TextView) recentItems.findViewById(R.id.errorMessage);
 
             // Handler is called when thread is complete that sends data to parse below
             final Handler handler = new Handler() {
                 public void handleMessage(Message msg) {
                     mLoading.setVisibility(View.GONE);
+
+                    if (values.size() == 0) {
+                        eMessage.setVisibility(View.VISIBLE);
+                        eMessage.setText("You have no recent workouts!");
+                    }
+
+                    if (!CheckInternet(getActivity().getApplicationContext())) {
+                        eMessage.setVisibility(View.VISIBLE);
+                        eMessage.setText("Please check your Internet connection!");
+                    }
 
                     // Get ListView object from xml
                     recentWorkouts = (ListView) recentItems.findViewById(R.id.recentWorkouts);
@@ -80,10 +108,14 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
                     // Forth - the Array of data
 
                   //  ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.custom, R.id.listTextView, values);
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.custom, R.id.listTextView, values);
+                    if (!onStopCalled) {
 
-                    // Assign adapter to ListView
-                    recentWorkouts.setAdapter(adapter);
+                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.custom, R.id.listTextView, values);
+
+                        // Assign adapter to ListView
+                        recentWorkouts.setAdapter(adapter);
+
+                    }
 
                     // ListView Item Click Listener
                     recentWorkouts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -185,6 +217,8 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
                             } catch (ParseException e2) {
 
                             }
+
+                            // Add run query here
                         }
 
                         if(wObjects.size() <= 5) {
@@ -204,4 +238,14 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
         }
             return recentItems;
         }
+
+    public boolean CheckInternet(Context ctx) {
+        ConnectivityManager connec = (ConnectivityManager) ctx
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo wifi = connec.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo mobile = connec.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        // Check if wifi or mobile network is available or not. If any of them is
+        // available or connected then it will return true, otherwise false;
+        return wifi.isConnected() || mobile.isConnected();
+    }
 }
