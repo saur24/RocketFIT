@@ -537,14 +537,22 @@ public class WeightsActivity extends Activity {
                 }
             }
         });
-        // Reset the layouts for the user
-        table.removeAllViews();
-        mMachineName.setText("Select a machine");
-        mMachineImage.getResources().getDrawable(R.drawable.weight);
-        mSelectMachine.setSelection(0);
-        mSubmit.setVisibility(View.GONE);
 
-        Toast.makeText(getApplicationContext(), "Set(s) saved!", Toast.LENGTH_SHORT).show();
+
+        if((allReps.size() == 0) || (allWeights.size() == 0)) {
+            Toast.makeText(getApplicationContext(), "Please enter reps and weight before submitting!", Toast.LENGTH_SHORT).show();
+            allReps.clear();
+            allWeights.clear();
+            numberOfSets = 0;
+        } else {
+            Toast.makeText(getApplicationContext(), "Set(s) saved!", Toast.LENGTH_SHORT).show();
+            // Reset the layouts for the user
+            table.removeAllViews();
+            mMachineName.setText("Select a machine");
+            mMachineImage.getResources().getDrawable(R.drawable.weight);
+            mSelectMachine.setSelection(0);
+            mSubmit.setVisibility(View.GONE);
+        }
 
     }
 
