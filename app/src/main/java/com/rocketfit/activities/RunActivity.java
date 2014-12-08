@@ -45,6 +45,7 @@ public class RunActivity extends Activity {
     short lapCount = 0;
     int beaconHits = 0;
     double accuracyLevel = 0.5;
+    double currentLapTime = 0, totalTime = 0, previousLapTimes = 0;
     Boolean inBeaconRange = false;
 
     private BeaconManager beaconManager = new BeaconManager(this);
@@ -53,6 +54,10 @@ public class RunActivity extends Activity {
         if (beaconHits % 4 == 0) {
             addLap();
             lapCount++;
+
+            previousLapTimes = totalTime;
+            totalTime = Double.parseDouble(chrono.getText().toString());
+            currentLapTime = totalTime - previousLapTimes;
 
         }
     }
@@ -76,7 +81,7 @@ public class RunActivity extends Activity {
 
             lapTime.setLayoutParams(new TableRow.LayoutParams(0, TableLayout.LayoutParams.MATCH_PARENT, 1f));
             lapTime.setGravity(Gravity.CENTER);
-            lapTime.setText(chrono.getText());
+            lapTime.setText("" + currentLapTime);
 
         // add data to array???
         //    allReps.add(reps);                                                                                                              // Add to the list of reps
