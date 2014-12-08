@@ -28,5 +28,6 @@
     <string name="reps">Reps</string>
     <string name="weight">Weight</string>
     <string name="title_activity_run">Run/Walk</string>
+    <string name="findBeaconMsg">Please approach the start line to begialkgjagk</string>
 
 </resources>

@@ -36,14 +36,14 @@ public class RunActivity extends Activity {
     private static final Region ALL_ESTIMOTE_BEACONS = new Region("regionId", ESTIMOTE_PROXIMITY_UUID, null, null);
 
     Chronometer chrono;
-    TextView debug;
+    TextView debug, defaultMsg;
     Button btnStart;
     Button btnStop;
     Button btnReset;
     long lastStop = 0;
     Boolean resume = false;
     short lapCount = 0;
-    int beaconHits = 0;
+    int beaconHits = -1;
     double accuracyLevel = 0.5;
     long currentLapTime = 0, totalTime = 0, previousLapTimes = 0, minutes, seconds;
     String currentLap = "";
@@ -52,18 +52,21 @@ public class RunActivity extends Activity {
     private BeaconManager beaconManager = new BeaconManager(this);
 
     private void isNewLap() {
+
         if (beaconHits % 4 == 0) {
-            lapCount++;
+            if(beaconHits != 0) {
+                lapCount++;
 
-            previousLapTimes = totalTime;
-            totalTime = SystemClock.elapsedRealtime() - chrono.getBase();
-            currentLapTime = totalTime - previousLapTimes;
+                previousLapTimes = totalTime;
+                totalTime = SystemClock.elapsedRealtime() - chrono.getBase();
+                currentLapTime = totalTime - previousLapTimes;
 
-            minutes=((currentLapTime)/1000)/60;
-            seconds=((currentLapTime)/1000)%60;
-            currentLap = minutes+":"+seconds;
+                minutes = ((currentLapTime) / 1000) / 60;
+                seconds = ((currentLapTime) / 1000) % 60;
+                currentLap = minutes + ":" + seconds;
 
-            addLap();
+                addLap();
+            }
         }
     }
 
@@ -111,6 +114,21 @@ public class RunActivity extends Activity {
                     chrono.start();
                 } else {
                     chrono.setBase(SystemClock.elapsedRealtime());
+
+                    // Should be invoked in #onStart.
+                    beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
+                        @Override
+                        public void onServiceReady() {
+                            try {
+                                beaconManager.startRanging(ALL_ESTIMOTE_BEACONS);
+//                    beaconManager.startMonitoring(ALL_ESTIMOTE_BEACONS);
+                                Log.i(TAG, "Ranging started.");
+                            } catch (RemoteException e) {
+                                Log.e(TAG, "Cannot start ranging", e);
+                            }
+                        }
+                    });
+
                     chrono.start();
                 }
 
@@ -154,9 +172,12 @@ public class RunActivity extends Activity {
         btnStop = (Button) findViewById(R.id.btnStop);
         btnReset = (Button) findViewById(R.id.btnReset);
         debug = (TextView) findViewById(R.id.debugText);
+        defaultMsg = (TextView) findViewById(R.id.defaultMsg);
+
 
         btnStop.setEnabled(false);
         btnReset.setEnabled(false);
+        btnStart.setEnabled(false);
 
         // default scanPeriod = 1s, waitTime = 0s
         // setting scanPeriod = 500ms (0.5s), waitTime = 0s
@@ -183,7 +204,6 @@ public class RunActivity extends Activity {
             }
         });
 
-
         // testing monitoring vs ranging
         // log time on enter and on exit, take the average?
         beaconManager.setBackgroundScanPeriod(500, 0);
@@ -191,6 +211,8 @@ public class RunActivity extends Activity {
             @Override
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
                 Log.d(TAG, "Entered beacon region: " + beacons);
+                btnStart.setEnabled(true);
+                defaultMsg.setVisibility(View.GONE);
                 Toast.makeText(getApplicationContext(), "Entered beacon region.", Toast.LENGTH_SHORT).show();
             }
 
@@ -212,35 +234,31 @@ public class RunActivity extends Activity {
             @Override
             public void onServiceReady() {
                 try {
-                    beaconManager.startRanging(ALL_ESTIMOTE_BEACONS);
-//                    beaconManager.startMonitoring(ALL_ESTIMOTE_BEACONS);
-                    Log.i(TAG, "Ranging/monitoring started.");
+                    //  beaconManager.startRanging(ALL_ESTIMOTE_BEACONS);
+                    beaconManager.startMonitoring(ALL_ESTIMOTE_BEACONS);
+                    Log.i(TAG, "Monitoring started.");
                 } catch (RemoteException e) {
-                    Log.e(TAG, "Cannot start ranging/monitoring", e);
+                    Log.e(TAG, "Cannot start monitoring", e);
                 }
             }
         });
     }
 
     @Override
-    protected void onStop() {
+    protected void onDestroy() {
 
         // Should be invoked in #onStop.
         try {
             beaconManager.stopRanging(ALL_ESTIMOTE_BEACONS);
-//            beaconManager.stopMonitoring(ALL_ESTIMOTE_BEACONS);
-            Log.i(TAG, "Ranging/monitoring stopped.");
+            beaconManager.stopMonitoring(ALL_ESTIMOTE_BEACONS);
+            Log.i(TAG, "Ranging & monitoring stopped.");
         } catch (RemoteException e) {
             Log.e(TAG, "Cannot stop but it does not matter now", e);
         }
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
 
         // When no longer needed. Should be invoked in #onDestroy.
         beaconManager.disconnect();
+
         super.onDestroy();
     }
 
