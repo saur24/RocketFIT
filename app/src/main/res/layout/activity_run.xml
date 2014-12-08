@@ -18,7 +18,7 @@
             android:text="Lane"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="28sp"
+            android:textSize="18sp"
             android:textIsSelectable="false"
             android:layout_marginEnd="10dp" />
 
@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/laneSpinner"
+            android:textSize="18sp"
             android:entries="@array/lanes" />
     </LinearLayout>
 
@@ -38,7 +39,7 @@
             android:text="Time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="28sp"
+            android:textSize="18sp"
             android:textIsSelectable="false"
             android:layout_marginEnd="10dp"
             android:id="@+id/textView" />
@@ -50,7 +51,8 @@
         android:layout_height="wrap_content"
         android:format="%s"
         android:id="@+id/chrono"
-        android:textSize="64sp" />
+        android:textSize="64sp"
+        android:textColor="#00aeef"/>
 
     <ScrollView
         android:id="@+id/scrollView"

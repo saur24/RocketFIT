@@ -82,10 +82,13 @@ public class RunActivity extends Activity {
 
             lapNum.setLayoutParams(new TableRow.LayoutParams(0, TableLayout.LayoutParams.MATCH_PARENT, 1f));                                // Center reps and weights on screen
             lapNum.setGravity(Gravity.CENTER);                                                                                              // Center user input
+            lapNum.setTextSize(28);
             lapNum.setText("Lap " + lapCount);
+
 
             lapTime.setLayoutParams(new TableRow.LayoutParams(0, TableLayout.LayoutParams.MATCH_PARENT, 1f));
             lapTime.setGravity(Gravity.CENTER);
+            lapTime.setTextSize(40);
             lapTime.setText(currentLap);
 
         // add data to array???
