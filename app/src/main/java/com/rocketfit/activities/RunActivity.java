@@ -46,14 +46,13 @@ public class RunActivity extends Activity {
     int beaconHits = 0;
     double accuracyLevel = 0.5;
     long currentLapTime = 0, totalTime = 0, previousLapTimes = 0, minutes, seconds;
-    String currentLap;
+    String currentLap = "";
     Boolean inBeaconRange = false;
 
     private BeaconManager beaconManager = new BeaconManager(this);
 
     private void isNewLap() {
         if (beaconHits % 4 == 0) {
-            addLap();
             lapCount++;
 
             previousLapTimes = totalTime;
@@ -64,7 +63,7 @@ public class RunActivity extends Activity {
             seconds=((currentLapTime)/1000)%60;
             currentLap = minutes+":"+seconds;
 
-
+            addLap();
         }
     }
 
