@@ -1,15 +1,22 @@
 package com.rocketfit.activities;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.EditText;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,13 +44,48 @@ public class RunActivity extends Activity {
     Boolean resume = false;
     short lapCount = 0;
     int beaconHits = 0;
+    double accuracyLevel = 0.5;
+    Boolean inBeaconRange = false;
 
     private BeaconManager beaconManager = new BeaconManager(this);
 
-    private void newLap() {
-        if (beaconHits % 4 == 0)
+    private void isNewLap() {
+        if (beaconHits % 4 == 0) {
+            addLap();
             lapCount++;
+
+        }
     }
+
+    public void addLap() {
+        //add new set
+//            //create a new row to add
+            TableRow row = new TableRow(RunActivity.this);
+
+            //add Layouts to your new row
+            TextView lapNum = new TextView(RunActivity.this);
+            TextView lapTime = new TextView(RunActivity.this);
+
+            // add reps/weights to your table
+            row.addView(lapNum);
+            row.addView(lapTime);
+
+            lapNum.setLayoutParams(new TableRow.LayoutParams(0, TableLayout.LayoutParams.MATCH_PARENT, 1f));                                // Center reps and weights on screen
+            lapNum.setGravity(Gravity.CENTER);                                                                                              // Center user input
+            lapNum.setText("Lap " + lapCount);
+
+            lapTime.setLayoutParams(new TableRow.LayoutParams(0, TableLayout.LayoutParams.MATCH_PARENT, 1f));
+            lapTime.setGravity(Gravity.CENTER);
+            lapTime.setText(chrono.getText());
+
+        // add data to array???
+        //    allReps.add(reps);                                                                                                              // Add to the list of reps
+        //    allWeights.add(weight);
+
+            //add your new row to the TableLayout:
+            TableLayout table = (TableLayout) findViewById(R.id.runTable);
+            table.addView(row);
+       }
 
     public void onClick(View v) {
         switch (v.getId()) {
@@ -112,6 +154,14 @@ public class RunActivity extends Activity {
                 if (beacons.size() > 0) {
                     debug.setText(String.valueOf(Utils.computeAccuracy(beacons.get(0)))
                             + "\n" + Utils.computeProximity(beacons.get(0)));
+
+                    if(Utils.computeAccuracy(beacons.get(0)) < accuracyLevel) {
+                        inBeaconRange = true;
+                    } else if(inBeaconRange){
+                        beaconHits++;
+                        inBeaconRange = false;
+                        isNewLap();
+                    }
 
                     // need to set threshold for logging time
 

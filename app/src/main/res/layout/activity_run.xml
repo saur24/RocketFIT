@@ -52,6 +52,26 @@
         android:id="@+id/chrono"
         android:textSize="64sp" />
 
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="200dp">
+
+        <LinearLayout
+            android:id="@+id/runLinLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TableLayout
+                android:id="@+id/runTable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false">
+                </TableLayout>
+        </LinearLayout>
+    </ScrollView>
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"

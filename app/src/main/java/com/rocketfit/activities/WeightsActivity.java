@@ -447,8 +447,8 @@ public class WeightsActivity extends Activity {
                     for (int i = 0; i < allReps.size(); i++) {
                         reps[i] = Integer.parseInt(allReps.get(i).getText().toString());
                         weights[i] = Integer.parseInt(allWeights.get(i).getText().toString());
-                        Log.i("REP", Integer.toString(reps[i]));
-                        Log.i("Weights", Integer.toString(weights[i]));
+                    //    Log.i("REP", Integer.toString(reps[i]));
+                    //    Log.i("Weights", Integer.toString(weights[i]));
 
                         // Create the set
                         final ParseObject mySet = new ParseObject("Set");
