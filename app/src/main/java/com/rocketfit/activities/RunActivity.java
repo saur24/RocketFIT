@@ -56,7 +56,7 @@ public class RunActivity extends Activity {
             lapCount++;
 
             previousLapTimes = totalTime;
-            totalTime = Double.parseDouble(chrono.getText().toString());
+            totalTime = SystemClock.elapsedRealtime();
             currentLapTime = totalTime - previousLapTimes;
 
         }
