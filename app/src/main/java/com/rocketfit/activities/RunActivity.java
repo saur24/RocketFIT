@@ -111,6 +111,12 @@ public class RunActivity extends Activity {
 
                 if (resume) {
                     chrono.setBase(chrono.getBase() + SystemClock.elapsedRealtime() - lastStop);
+                    try {
+                        beaconManager.startRanging(ALL_ESTIMOTE_BEACONS);
+                        Log.i(TAG, "Ranging started.");
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "Cannot start ranging", e);
+                    }
                     chrono.start();
                 } else {
                     chrono.setBase(SystemClock.elapsedRealtime());
@@ -140,6 +146,11 @@ public class RunActivity extends Activity {
 
                 lastStop = SystemClock.elapsedRealtime();
                 chrono.stop();
+                try {
+                    beaconManager.stopRanging(ALL_ESTIMOTE_BEACONS);
+                } catch (RemoteException e) {
+
+                }
                 resume = true;
 
                 btnStart.setText("Resume");
@@ -213,7 +224,7 @@ public class RunActivity extends Activity {
                 Log.d(TAG, "Entered beacon region: " + beacons);
                 btnStart.setEnabled(true);
                 defaultMsg.setVisibility(View.GONE);
-                Toast.makeText(getApplicationContext(), "Entered beacon region.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Click start to begin your run!", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -221,7 +232,7 @@ public class RunActivity extends Activity {
                 Log.d(TAG, "Exited beacon region.");
                 btnStart.setEnabled(false);
                 defaultMsg.setVisibility(View.VISIBLE);
-                Toast.makeText(getApplicationContext(), "Exited beacon region.", Toast.LENGTH_SHORT).show();
+              //  Toast.makeText(getApplicationContext(), "Exited beacon region.", Toast.LENGTH_SHORT).show();
             }
         });
 
