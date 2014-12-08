@@ -120,8 +120,8 @@ public class RunActivity extends Activity {
                         @Override
                         public void onServiceReady() {
                             try {
+                                beaconManager.stopMonitoring(ALL_ESTIMOTE_BEACONS);
                                 beaconManager.startRanging(ALL_ESTIMOTE_BEACONS);
-//                    beaconManager.startMonitoring(ALL_ESTIMOTE_BEACONS);
                                 Log.i(TAG, "Ranging started.");
                             } catch (RemoteException e) {
                                 Log.e(TAG, "Cannot start ranging", e);
@@ -219,6 +219,8 @@ public class RunActivity extends Activity {
             @Override
             public void onExitedRegion(Region region) {
                 Log.d(TAG, "Exited beacon region.");
+                btnStart.setEnabled(false);
+                defaultMsg.setVisibility(View.VISIBLE);
                 Toast.makeText(getApplicationContext(), "Exited beacon region.", Toast.LENGTH_SHORT).show();
             }
         });
