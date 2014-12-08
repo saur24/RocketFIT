@@ -91,6 +91,7 @@ public class RunActivity extends Activity {
             lapTime.setTextSize(40);
             lapTime.setText(currentLap);
 
+
         // add data to array???
         //    allReps.add(reps);                                                                                                              // Add to the list of reps
         //    allWeights.add(weight);
