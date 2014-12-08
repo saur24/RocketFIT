@@ -56,7 +56,7 @@ public class RunActivity extends Activity {
             lapCount++;
 
             previousLapTimes = totalTime;
-            totalTime = SystemClock.elapsedRealtime();
+            totalTime = SystemClock.elapsedRealtime() - chrono.getBase();
             currentLapTime = totalTime - previousLapTimes;
 
         }
@@ -89,7 +89,7 @@ public class RunActivity extends Activity {
 
             //add your new row to the TableLayout:
             TableLayout table = (TableLayout) findViewById(R.id.runTable);
-            table.addView(row);
+            table.addView(row, 0);
        }
 
     public void onClick(View v) {
