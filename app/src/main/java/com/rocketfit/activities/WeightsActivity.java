@@ -324,8 +324,8 @@ public class WeightsActivity extends Activity {
 
                                                     wSum.append(String.format("<b>%s</b>", message) + "<br>");
                                                 }
-                                                wSum.append("Total Run Time: " + oneRun.get("totalTime").toString() + "&nbsp;&nbsp;&nbsp;&nbsp;");
-                                                wSum.append("Total Distance Ran: " + oneRun.get("totalDistance").toString() + " miles" + "<br>");
+                                                wSum.append("Total Run Time: " + oneRun.get("totalTime").toString() + "<br>");
+                                                wSum.append("Total Distance Ran: " + oneRun.get("totalDistance").toString() + " miles" + "<br><br>");
                                             }
 
                                         } catch (ParseException e2) {
@@ -351,9 +351,9 @@ public class WeightsActivity extends Activity {
                                                     Log.i("MACHINE", strMachine);
 
                                                     if (i == 0) {
-                                                        wSum.append(String.format("<b>%s</b>", strMachine) + "<br>");
+                                                        wSum.append(String.format("<i>%s</i>", strMachine) + "<br>");
                                                     } else if (!(lastMachine.compareTo(strMachine) == 0)) {
-                                                        wSum.append(String.format("<br>" + "<b>%s</b>", strMachine) + "<br>");
+                                                        wSum.append(String.format("<br>" + "<i>%s</i>", strMachine) + "<br>");
                                                     }
                                                 } catch (ParseException e1) {
 
