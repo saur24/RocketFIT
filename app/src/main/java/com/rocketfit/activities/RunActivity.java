@@ -207,6 +207,9 @@ public class RunActivity extends Activity {
                 // Create a relation between the Run and the Laps
                 final ParseObject myRun = new ParseObject("Run");
 
+                myRun.put("totalTime", totalRunTime);
+                myRun.put("totalDistance", totalRunDistance);
+
                 for(int i = 0; i < allLapNums.size(); i++) {
 
                     final ParseObject myLap = new ParseObject("Lap");
@@ -231,9 +234,6 @@ public class RunActivity extends Activity {
                                             //myObjectSavedSuccessfully();
                                             ParseRelation<ParseObject> workoutRelation = workout.getRelation("run");
                                             workoutRelation.add(myRun);
-
-                                            myRun.put("totalTime", totalRunTime);
-                                            myRun.put("totalDistance", totalRunDistance);
 
                                             workout.saveInBackground();
                                         } else {
