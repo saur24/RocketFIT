@@ -232,7 +232,7 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
                                         strMachine = machine.get("name").toString();
                                         Log.i("MACHINE", strMachine);
 
-                                        if (i == 0) {
+                                        if (z == 0) {
                                             wSum.get(i).append(String.format("<i>%s</i>", strMachine) + "<br>");
                                         } else if (!(lastMachine.compareTo(strMachine) == 0)) {
                                             wSum.get(i).append(String.format("<br>" + "<i>%s</i>", strMachine) + "<br>");
