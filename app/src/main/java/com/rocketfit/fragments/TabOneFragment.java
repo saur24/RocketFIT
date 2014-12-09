@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -184,27 +185,58 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
                             wSum.add(i, new StringBuilder());
                             values.add(i, message);
 
+                            ParseQuery<ParseObject> runQuery = oneWorkout.getRelation("run").getQuery();
+                            runQuery.orderByAscending("createdAt");
+                            try {
+                                List<ParseObject> objects = runQuery.find();
+
+                                if (objects.size() != 0) {
+                                    wSum.get(i).append(String.format("<b><u>%s</u></b>", "Run") + "<br>");
+                                }
+
+                                for (int k = 0; k < objects.size(); k++) {
+                                    ParseObject oneRun = objects.get(k);
+
+                                    if(objects.size() > 1) {
+
+                                        String runCreatedAt = oneRun.getCreatedAt().toString();
+                                        String runMessage = "Run on " + runCreatedAt;
+
+                                        wSum.get(i).append(String.format("<b>%s</b>", runMessage) + "<br>");
+                                    }
+                                    wSum.get(i).append("Time: " + oneRun.get("totalTime").toString() + "<br>");
+                                    wSum.get(i).append("Distance: " + oneRun.get("totalDistance").toString() + " miles" + "<br><br>");
+                                }
+
+                            } catch (ParseException e2) {
+
+                            }
+
                             ParseQuery<ParseObject> setsQuery = oneWorkout.getRelation("sets").getQuery();
                             setsQuery.orderByAscending("createdAt");
                             String strMachine = "", lastMachine = "";
                             try {
-                                List<ParseObject> sObjects = setsQuery.find();
+                                List<ParseObject> objects = setsQuery.find();
 
-                                for (int k = 0; k < sObjects.size(); k++) {
-                                    ParseObject oneSet = sObjects.get(k);
+                                if (objects.size() != 0) {
+                                    wSum.get(i).append(String.format("<b><u>%s</u></b>", "Weights") + "<br>");
+                                }
+
+                                for (int z = 0; z < objects.size(); z++) {
+                                    ParseObject oneSet = objects.get(z);
 
                                     ParseObject machine;
                                     ParseQuery<ParseObject> machineQuery = oneSet.getRelation("machineId").getQuery();
                                     try {
                                         machine = machineQuery.getFirst();
                                         strMachine = machine.get("name").toString();
+                                        Log.i("MACHINE", strMachine);
 
-                                        if (k == 0) {
-                                            wSum.get(i).append(String.format("<b>%s</b>", strMachine) + "<br>");
+                                        if (i == 0) {
+                                            wSum.get(i).append(String.format("<i>%s</i>", strMachine) + "<br>");
                                         } else if (!(lastMachine.compareTo(strMachine) == 0)) {
-                                            wSum.get(i).append(String.format("<b>%s</b>", strMachine) + "<br>");
+                                            wSum.get(i).append(String.format("<br>" + "<i>%s</i>", strMachine) + "<br>");
                                         }
-
                                     } catch (ParseException e1) {
 
                                     }
@@ -214,16 +246,14 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
 
                                     lastMachine = strMachine;
                                 }
+
                             } catch (ParseException e2) {
 
                             }
-
-                            // Add run query here
                         }
                     } catch (ParseException eWorkout) {
 
                     }
-
                     handler.sendEmptyMessage(0); // sends message to handle after comple
                 }
             };
