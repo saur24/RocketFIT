@@ -16,11 +16,9 @@
         android:background="#ADD8E6"
         android:textSize="18sp"
         android:textIsSelectable="false"
-        android:layout_marginEnd="10dp"
         android:id="@+id/defaultMsg"
-     />
-
-
+        android:layout_marginBottom="10dp"
+        android:textStyle="bold" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -70,9 +68,9 @@
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="fill_parent"
-        android:layout_height="100dp">
+        android:layout_height="225dp">
 
-        <LinearLayout
+    <LinearLayout
             android:id="@+id/runLinLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -93,25 +91,28 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/btnStart"
             android:text="Start"
-            android:onClick="onClick" />
+            android:onClick="onClick"
+            android:layout_weight="1" />
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/btnStop"
-            android:text="Stop"
-            android:onClick="onClick" />
+            android:id="@+id/btnPause"
+            android:text="Pause"
+            android:onClick="onClick"
+            android:layout_weight="1" />
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/btnReset"
-            android:text="Reset"
-            android:onClick="onClick" />
+            android:text="Submit"
+            android:onClick="onClick"
+            android:layout_weight="1" />
 
     </LinearLayout>
 
@@ -121,6 +122,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Large Text"
         android:id="@+id/debugText"
-        android:textSize="48dp" />
+        android:textSize="48dp"
+        android:visibility="gone" />
 
 </LinearLayout>

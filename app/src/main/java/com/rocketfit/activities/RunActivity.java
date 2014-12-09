@@ -1,12 +1,9 @@
 package com.rocketfit.activities;
 
 import android.app.Activity;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.text.InputFilter;
-import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -14,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
-import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -38,7 +34,7 @@ public class RunActivity extends Activity {
     Chronometer chrono;
     TextView debug, defaultMsg;
     Button btnStart;
-    Button btnStop;
+    Button btnPause;
     Button btnReset;
     long lastStop = 0;
     Boolean resume = false;
@@ -139,10 +135,10 @@ public class RunActivity extends Activity {
                 }
 
                 btnStart.setEnabled(false);
-                btnStop.setEnabled(true);
+                btnPause.setEnabled(true);
                 break;
 
-            case R.id.btnStop:
+            case R.id.btnPause:
 
                 lastStop = SystemClock.elapsedRealtime();
                 chrono.stop();
@@ -155,7 +151,7 @@ public class RunActivity extends Activity {
 
                 btnStart.setText("Resume");
                 btnStart.setEnabled(true);
-                btnStop.setEnabled(false);
+                btnPause.setEnabled(false);
                 btnReset.setEnabled(true);
                 break;
 
@@ -167,7 +163,7 @@ public class RunActivity extends Activity {
 
                 btnStart.setText("Start");
                 btnStart.setEnabled(true);
-                btnStop.setEnabled(false);
+                btnPause.setEnabled(false);
                 btnReset.setEnabled(false);
                 break;
         }
@@ -180,13 +176,13 @@ public class RunActivity extends Activity {
 
         chrono = (Chronometer) findViewById(R.id.chrono);
         btnStart = (Button) findViewById(R.id.btnStart);
-        btnStop = (Button) findViewById(R.id.btnStop);
+        btnPause = (Button) findViewById(R.id.btnPause);
         btnReset = (Button) findViewById(R.id.btnReset);
         debug = (TextView) findViewById(R.id.debugText);
         defaultMsg = (TextView) findViewById(R.id.defaultMsg);
 
 
-        btnStop.setEnabled(false);
+        btnPause.setEnabled(false);
         btnReset.setEnabled(false);
         btnStart.setEnabled(false);
 
