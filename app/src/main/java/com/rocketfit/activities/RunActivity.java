@@ -1,11 +1,17 @@
 package com.rocketfit.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -34,6 +40,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import projects.rocketfit.R;
@@ -43,6 +50,10 @@ public class RunActivity extends Activity {
     private static final String TAG = "BEACON";
     private static final String ESTIMOTE_PROXIMITY_UUID = "B9407F30-F5F8-466E-AFF9-25556B57FE6D";
     private static final Region ALL_ESTIMOTE_BEACONS = new Region("regionId", ESTIMOTE_PROXIMITY_UUID, null, null);
+    private static final double LANE_1 = 0.164205;
+    private static final double LANE_2 = 0.167424;
+    private static final double LANE_3 = 0.171023;
+    private static final double LANE_4 = 0.174811;
 
     Chronometer chrono;
     TextView debug, defaultMsg;
@@ -54,6 +65,7 @@ public class RunActivity extends Activity {
     short lapCount = 0;
     int beaconHits = -1;
     double accuracyLevel = 0.5;
+    double totalRunDistance = 0;
     long currentLapTime = 0, totalTime = 0, previousLapTimes = 0, minutes, seconds;
     String currentLap = "";
     Boolean inBeaconRange = false;
@@ -61,9 +73,9 @@ public class RunActivity extends Activity {
     public List<String> allLapTimes = new ArrayList<String>();
     public List<Short> allLapNums = new ArrayList<Short>();
     private Spinner mSelectLane;
+    private ProgressDialog mLoading;
     int lane;
-
-
+    public StringBuilder wSum = new StringBuilder();
 
     private BeaconManager beaconManager = new BeaconManager(this);
 
@@ -176,9 +188,19 @@ public class RunActivity extends Activity {
 
             case R.id.btnSubmit:
 
+                final String totalRunTime = chrono.getText().toString();
+
+                if(lane == 1){
+                    totalRunDistance = LANE_1 * lapCount;
+                } else if (lane == 2) {
+                    totalRunDistance = LANE_2 * lapCount;
+                } else if (lane == 3) {
+                    totalRunDistance = LANE_3 * lapCount;
+                } else if (lane == 4) {
+                    totalRunDistance = LANE_4 * lapCount;
+                }
+
                 chrono.stop();
-                chrono.setText("00:00");
-                resume = false;
 
                 TableLayout table = (TableLayout) findViewById(R.id.runTable);           // Used to reset the reps / sets
 
@@ -209,6 +231,9 @@ public class RunActivity extends Activity {
                                             ParseRelation<ParseObject> workoutRelation = workout.getRelation("run");
                                             workoutRelation.add(myRun);
 
+                                            myRun.put("totalTime", totalRunTime);
+                                            myRun.put("totalDistance", totalRunDistance);
+
                                             workout.saveInBackground();
                                         } else {
                                             //myObjectSaveDidNotSucceed();
@@ -236,6 +261,9 @@ public class RunActivity extends Activity {
                     btnPause.setEnabled(false);
                     btnSubmit.setEnabled(false);
                 }
+
+                chrono.setText("00:00");
+                resume = false;
 
                 break;
         }
@@ -391,6 +419,156 @@ public class RunActivity extends Activity {
 
             finish();
             //return true;
+        }
+
+        if (id == R.id.action_save) {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(RunActivity.this);
+            builder1.setMessage("Are you sure you want to submit your workout?");
+            builder1.setCancelable(true);
+            builder1.setPositiveButton("Yes",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            if (((workout.get("sets") == null) && (workout.get("run") == null)) || (workout == null)) {
+                                Toast.makeText(getApplicationContext(), "Your workout did not save. Please try again!", Toast.LENGTH_SHORT).show();
+                                dialog.cancel();
+                            } else {
+
+                                // dismiss the first dialog on "Yes" click
+                                dialog.dismiss();
+
+                                // create a progress dialog
+                                mLoading = new ProgressDialog(RunActivity.this);
+                                mLoading.setMessage("Saving Data...");
+                                mLoading.setTitle("");
+                                mLoading.show();
+
+                                // Handler is called when thread is complete that sends data to parse below
+                                final Handler handler = new Handler() {
+                                    public void handleMessage(Message msg) {
+                                        mLoading.dismiss();  // dismiss the dialog
+                                        Toast.makeText(getApplicationContext(), "Workout saved!", Toast.LENGTH_SHORT).show();
+                                        AlertDialog.Builder workoutSummary = new AlertDialog.Builder(RunActivity.this);
+                                        workoutSummary.setTitle("Your Workout Summary");
+                                        workoutSummary.setMessage(Html.fromHtml(wSum.toString()));
+                                        workoutSummary.setCancelable(true);
+                                        workoutSummary.setPositiveButton("Close Summary",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+
+                                                        dialog.cancel();
+                                                        wSum.setLength(0);
+                                                        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                                        startActivity(intent);
+                                                        finish();
+
+                                                    }
+                                                });
+                                        AlertDialog alert2 = workoutSummary.create();
+                                        alert2.show();
+                                    }
+                                };
+
+                                // creates thread and sends user workout data to Parse
+                                Thread mThread = new Thread() {
+                                    @Override
+                                    public void run() {
+
+                                        // Submit workout
+                                        ParseUser currentUser = ParseUser.getCurrentUser();
+
+                                        //get current date time with Date()
+                                        Date date = new Date();
+                                        workout.put("finishedAt", date);
+
+                                        ParseRelation<ParseObject> userRelation = currentUser.getRelation("workouts");
+                                        userRelation.add(workout);
+
+                                        // save the user
+                                        currentUser.saveInBackground();
+                                        // save the workout
+                                        workout.saveInBackground();
+
+                                        ParseQuery<ParseObject> runQuery = workout.getRelation("run").getQuery();
+                                        runQuery.orderByAscending("createdAt");
+                                        try {
+                                            List<ParseObject> objects = runQuery.find();
+
+                                            wSum.append(String.format("<b><u>%s</u></b>", "Run") + "<br>");
+
+                                            for (int i = 0; i < objects.size(); i++) {
+                                                ParseObject oneRun = objects.get(i);
+
+                                                if(objects.size() > 1) {
+
+                                                    String createdAt = oneRun.getCreatedAt().toString();
+                                                    String message = "Run on " + createdAt;
+
+                                                    wSum.append(String.format("<b>%s</b>", message) + "<br>");
+                                                }
+                                                wSum.append("Total Run Time: " + oneRun.get("totalTime").toString() + "&nbsp;&nbsp;&nbsp;&nbsp;");
+                                                wSum.append("Total Distance Ran: " + oneRun.get("totalDistance").toString() + " miles" + "<br>");
+                                            }
+
+                                        } catch (ParseException e2) {
+
+                                        }
+
+                                        ParseQuery<ParseObject> setsQuery = workout.getRelation("sets").getQuery();
+                                        setsQuery.orderByAscending("createdAt");
+                                        String strMachine = "", lastMachine = "";
+                                        try {
+                                            List<ParseObject> objects = setsQuery.find();
+
+                                            wSum.append(String.format("<b><u>%s</u></b>", "Weights") + "<br>");
+
+                                            for (int i = 0; i < objects.size(); i++) {
+                                                ParseObject oneSet = objects.get(i);
+
+                                                ParseObject machine;
+                                                ParseQuery<ParseObject> machineQuery = oneSet.getRelation("machineId").getQuery();
+                                                try {
+                                                    machine = machineQuery.getFirst();
+                                                    strMachine = machine.get("name").toString();
+                                                    Log.i("MACHINE", strMachine);
+
+                                                    if (i == 0) {
+                                                        wSum.append(String.format("<b>%s</b>", strMachine) + "<br>");
+                                                    } else if (!(lastMachine.compareTo(strMachine) == 0)) {
+                                                        wSum.append(String.format("<br>" + "<b>%s</b>", strMachine) + "<br>");
+                                                    }
+                                                } catch (ParseException e1) {
+
+                                                }
+
+                                                wSum.append("Reps: " + oneSet.get("repetitions").toString() + "&nbsp;&nbsp;&nbsp;&nbsp;");
+                                                wSum.append("Weight: " + oneSet.get("resistance").toString() + " lbs" + "<br>");
+
+                                                lastMachine = strMachine;
+                                            }
+
+                                        } catch (ParseException e2) {
+
+                                        }
+
+                                        handler.sendEmptyMessage(0); // sends message to handle after comple
+                                    }
+                                };
+                                mThread.start();
+                            }
+                        }
+                    });
+            builder1.setNegativeButton("No",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+
+            AlertDialog alert1 = builder1.create();
+            alert1.show();
+
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

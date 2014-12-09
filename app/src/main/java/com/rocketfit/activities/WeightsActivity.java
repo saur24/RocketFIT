@@ -307,11 +307,38 @@ public class WeightsActivity extends Activity {
                                         // save the workout
                                         workout.saveInBackground();
 
+                                        ParseQuery<ParseObject> runQuery = workout.getRelation("run").getQuery();
+                                        runQuery.orderByAscending("createdAt");
+                                        try {
+                                            List<ParseObject> objects = runQuery.find();
+
+                                            wSum.append(String.format("<b><u>%s</u></b>", "Run") + "<br>");
+
+                                            for (int i = 0; i < objects.size(); i++) {
+                                                ParseObject oneRun = objects.get(i);
+
+                                                if(objects.size() > 1) {
+
+                                                    String createdAt = oneRun.getCreatedAt().toString();
+                                                    String message = "Run on " + createdAt;
+
+                                                    wSum.append(String.format("<b>%s</b>", message) + "<br>");
+                                                }
+                                                wSum.append("Total Run Time: " + oneRun.get("totalTime").toString() + "&nbsp;&nbsp;&nbsp;&nbsp;");
+                                                wSum.append("Total Distance Ran: " + oneRun.get("totalDistance").toString() + " miles" + "<br>");
+                                            }
+
+                                        } catch (ParseException e2) {
+
+                                        }
+
                                         ParseQuery<ParseObject> setsQuery = workout.getRelation("sets").getQuery();
                                         setsQuery.orderByAscending("createdAt");
                                         String strMachine = "", lastMachine = "";
                                         try {
                                             List<ParseObject> objects = setsQuery.find();
+
+                                            wSum.append(String.format("<b><u>%s</u></b>", "Weights") + "<br>");
 
                                             for (int i = 0; i < objects.size(); i++) {
                                                 ParseObject oneSet = objects.get(i);
@@ -341,8 +368,6 @@ public class WeightsActivity extends Activity {
                                         } catch (ParseException e2) {
 
                                         }
-
-                                        // Add run query
 
                                         handler.sendEmptyMessage(0); // sends message to handle after comple
                                     }
