@@ -220,13 +220,10 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
 
                             // Add run query here
                         }
-
-                        if(wObjects.size() <= 5) {
-
-                        }
                     } catch (ParseException eWorkout) {
 
                     }
+
                     handler.sendEmptyMessage(0); // sends message to handle after comple
                 }
             };

@@ -215,6 +215,7 @@ public class RunActivity extends Activity {
                     myLap.put("lapTime", allLapTimes.get(i));
                     myLap.put("lane", lane);
 
+
                     // This will save the lap
                     myLap.saveInBackground(new SaveCallback() {
                         public void done(ParseException e) {
