@@ -206,7 +206,7 @@ public class RunActivity extends Activity {
                                     public void done(ParseException e) {
                                         if (e == null) {
                                             //myObjectSavedSuccessfully();
-                                            ParseRelation<ParseObject> workoutRelation = workout.getRelation("laps");
+                                            ParseRelation<ParseObject> workoutRelation = workout.getRelation("run");
                                             workoutRelation.add(myRun);
 
                                             workout.saveInBackground();
