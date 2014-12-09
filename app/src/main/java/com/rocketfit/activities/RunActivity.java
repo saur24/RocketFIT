@@ -200,27 +200,28 @@ public class RunActivity extends Activity {
                                 //myObjectSavedSuccessfully();
                                 ParseRelation<ParseObject> runRelation = myRun.getRelation("laps");
                                 runRelation.add(myLap);
+
+                                // This will save the run
+                                myRun.saveInBackground(new SaveCallback() {
+                                    public void done(ParseException e) {
+                                        if (e == null) {
+                                            //myObjectSavedSuccessfully();
+                                            ParseRelation<ParseObject> workoutRelation = workout.getRelation("laps");
+                                            workoutRelation.add(myRun);
+
+                                            workout.saveInBackground();
+                                        } else {
+                                            //myObjectSaveDidNotSucceed();
+                                        }
+                                    }
+                                });
+
                             } else {
                                 //myObjectSaveDidNotSucceed();
                             }
                         }
                     });
                 }
-
-                // This will save the run
-                myRun.saveInBackground(new SaveCallback() {
-                    public void done(ParseException e) {
-                        if (e == null) {
-                            //myObjectSavedSuccessfully();
-                            ParseRelation<ParseObject> workoutRelation = workout.getRelation("laps");
-                            workoutRelation.add(myRun);
-
-                            workout.saveInBackground();
-                        } else {
-                            //myObjectSaveDidNotSucceed();
-                        }
-                    }
-                });
 
                 if((allLapNums.size() == 0) || (allLapTimes.size() == 0)) {
                     Toast.makeText(getApplicationContext(), "Please finish at least one lap before submitting!", Toast.LENGTH_SHORT).show();
