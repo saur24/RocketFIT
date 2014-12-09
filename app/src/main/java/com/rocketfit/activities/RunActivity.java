@@ -495,7 +495,9 @@ public class RunActivity extends Activity {
                                         try {
                                             List<ParseObject> objects = runQuery.find();
 
-                                            wSum.append(String.format("<b><u>%s</u></b>", "Run") + "<br>");
+                                            if (objects.size() != 0) {
+                                                wSum.append(String.format("<b><u>%s</u></b>", "Run") + "<br>");
+                                            }
 
                                             for (int i = 0; i < objects.size(); i++) {
                                                 ParseObject oneRun = objects.get(i);
@@ -507,8 +509,8 @@ public class RunActivity extends Activity {
 
                                                     wSum.append(String.format("<b>%s</b>", message) + "<br>");
                                                 }
-                                                wSum.append("Total Run Time: " + oneRun.get("totalTime").toString() + "<br>");
-                                                wSum.append("Total Distance Ran: " + oneRun.get("totalDistance").toString() + " miles" + "<br><br>");
+                                                wSum.append("Time: " + oneRun.get("totalTime").toString() + "<br>");
+                                                wSum.append("Distance: " + oneRun.get("totalDistance").toString() + " miles" + "<br><br>");
                                             }
 
                                         } catch (ParseException e2) {
@@ -521,7 +523,9 @@ public class RunActivity extends Activity {
                                         try {
                                             List<ParseObject> objects = setsQuery.find();
 
-                                            wSum.append(String.format("<b><u>%s</u></b>", "Weights") + "<br>");
+                                            if (objects.size() != 0) {
+                                                wSum.append(String.format("<b><u>%s</u></b>", "Weights") + "<br>");
+                                            }
 
                                             for (int i = 0; i < objects.size(); i++) {
                                                 ParseObject oneSet = objects.get(i);
