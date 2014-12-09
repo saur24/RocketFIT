@@ -207,13 +207,15 @@ public class RunActivity extends Activity {
                     });
                 }
 
-                // This will save the lap
+                // This will save the run
                 myRun.saveInBackground(new SaveCallback() {
                     public void done(ParseException e) {
                         if (e == null) {
                             //myObjectSavedSuccessfully();
                             ParseRelation<ParseObject> workoutRelation = workout.getRelation("laps");
                             workoutRelation.add(myRun);
+
+                            workout.saveInBackground();
                         } else {
                             //myObjectSaveDidNotSucceed();
                         }
