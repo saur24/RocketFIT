@@ -58,8 +58,8 @@ public class RunActivity extends Activity {
     String currentLap = "";
     Boolean inBeaconRange = false;
     private ParseObject workout;
-    public List<TextView> allLapTimes = new ArrayList<TextView>();
-    public List<TextView> allLapNums = new ArrayList<TextView>();
+    public List<String> allLapTimes = new ArrayList<String>();
+    public List<Short> allLapNums = new ArrayList<Short>();
     private Spinner mSelectLane;
     int lane;
 
@@ -111,8 +111,8 @@ public class RunActivity extends Activity {
             lapTime.setText(currentLap);
 
         // add data to array
-            allLapNums.add(lapNum);                                                                                                              // Add to the list of reps
-            allLapTimes.add(lapTime);
+            allLapNums.add(lapCount);                                                                                                              // Add to the list of reps
+            allLapTimes.add(lapTime.getText().toString());
 
             //add your new row to the TableLayout:
             TableLayout table = (TableLayout) findViewById(R.id.runTable);
@@ -221,7 +221,7 @@ public class RunActivity extends Activity {
                 });
 
                 if((allLapNums.size() == 0) || (allLapTimes.size() == 0)) {
-                    Toast.makeText(getApplicationContext(), "Please finish atlease one lap before submitting!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Please finish at least one lap before submitting!", Toast.LENGTH_SHORT).show();
                     allLapNums.clear();
                     allLapTimes.clear();
                 } else {
