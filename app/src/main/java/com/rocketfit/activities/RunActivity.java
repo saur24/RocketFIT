@@ -1,6 +1,8 @@
 package com.rocketfit.activities;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -9,8 +11,11 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -20,7 +25,15 @@ import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 import com.estimote.sdk.Utils;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseRelation;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import projects.rocketfit.R;
@@ -35,7 +48,7 @@ public class RunActivity extends Activity {
     TextView debug, defaultMsg;
     Button btnStart;
     Button btnPause;
-    Button btnReset;
+    Button btnSubmit;
     long lastStop = 0;
     Boolean resume = false;
     short lapCount = 0;
@@ -44,6 +57,13 @@ public class RunActivity extends Activity {
     long currentLapTime = 0, totalTime = 0, previousLapTimes = 0, minutes, seconds;
     String currentLap = "";
     Boolean inBeaconRange = false;
+    private ParseObject workout;
+    public List<TextView> allLapTimes = new ArrayList<TextView>();
+    public List<TextView> allLapNums = new ArrayList<TextView>();
+    private Spinner mSelectLane;
+    int lane;
+
+
 
     private BeaconManager beaconManager = new BeaconManager(this);
 
@@ -90,10 +110,9 @@ public class RunActivity extends Activity {
             lapTime.setTextSize(40);
             lapTime.setText(currentLap);
 
-
-        // add data to array???
-        //    allReps.add(reps);                                                                                                              // Add to the list of reps
-        //    allWeights.add(weight);
+        // add data to array
+            allLapNums.add(lapNum);                                                                                                              // Add to the list of reps
+            allLapTimes.add(lapTime);
 
             //add your new row to the TableLayout:
             TableLayout table = (TableLayout) findViewById(R.id.runTable);
@@ -152,19 +171,69 @@ public class RunActivity extends Activity {
                 btnStart.setText("Resume");
                 btnStart.setEnabled(true);
                 btnPause.setEnabled(false);
-                btnReset.setEnabled(true);
+                btnSubmit.setEnabled(true);
                 break;
 
-            case R.id.btnReset:
+            case R.id.btnSubmit:
 
                 chrono.stop();
                 chrono.setText("00:00");
                 resume = false;
 
-                btnStart.setText("Start");
-                btnStart.setEnabled(true);
-                btnPause.setEnabled(false);
-                btnReset.setEnabled(false);
+                TableLayout table = (TableLayout) findViewById(R.id.runTable);           // Used to reset the reps / sets
+
+                // Create a relation between the Run and the Laps
+                final ParseObject myRun = new ParseObject("Run");
+
+                for(int i = 0; i < allLapNums.size(); i++) {
+
+                    final ParseObject myLap = new ParseObject("Lap");
+
+                    myLap.put("lapNum", allLapNums.get(i));
+                    myLap.put("lapTime", allLapTimes.get(i));
+                    myLap.put("lane", lane);
+
+                    // This will save the lap
+                    myLap.saveInBackground(new SaveCallback() {
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                //myObjectSavedSuccessfully();
+                                ParseRelation<ParseObject> runRelation = myRun.getRelation("laps");
+                                runRelation.add(myLap);
+                            } else {
+                                //myObjectSaveDidNotSucceed();
+                            }
+                        }
+                    });
+                }
+
+                // This will save the lap
+                myRun.saveInBackground(new SaveCallback() {
+                    public void done(ParseException e) {
+                        if (e == null) {
+                            //myObjectSavedSuccessfully();
+                            ParseRelation<ParseObject> workoutRelation = workout.getRelation("laps");
+                            workoutRelation.add(myRun);
+                        } else {
+                            //myObjectSaveDidNotSucceed();
+                        }
+                    }
+                });
+
+                if((allLapNums.size() == 0) || (allLapTimes.size() == 0)) {
+                    Toast.makeText(getApplicationContext(), "Please finish atlease one lap before submitting!", Toast.LENGTH_SHORT).show();
+                    allLapNums.clear();
+                    allLapTimes.clear();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Run saved!", Toast.LENGTH_SHORT).show();
+                    // Reset the layouts for the user
+                    table.removeAllViews();
+                    btnStart.setText("Start");
+                    btnStart.setEnabled(true);
+                    btnPause.setEnabled(false);
+                    btnSubmit.setEnabled(false);
+                }
+
                 break;
         }
     }
@@ -177,14 +246,33 @@ public class RunActivity extends Activity {
         chrono = (Chronometer) findViewById(R.id.chrono);
         btnStart = (Button) findViewById(R.id.btnStart);
         btnPause = (Button) findViewById(R.id.btnPause);
-        btnReset = (Button) findViewById(R.id.btnReset);
+        btnSubmit = (Button) findViewById(R.id.btnSubmit);
         debug = (TextView) findViewById(R.id.debugText);
         defaultMsg = (TextView) findViewById(R.id.defaultMsg);
-
+        mSelectLane = (Spinner) findViewById(R.id.laneSpinner);
 
         btnPause.setEnabled(false);
-        btnReset.setEnabled(false);
+        btnSubmit.setEnabled(false);
         btnStart.setEnabled(false);
+        mSelectLane.setOnItemSelectedListener(new SpinnerOnItemSelectedListener());
+
+        // check if a workout exists
+        ParseQuery<ParseObject> workoutQuery = ParseQuery.getQuery("Workout");
+        workoutQuery.whereEqualTo("createdBy", ParseUser.getCurrentUser());
+        workoutQuery.whereDoesNotExist("finishedAt");
+        workoutQuery.getFirstInBackground(new GetCallback<ParseObject>() {
+            public void done(ParseObject object, ParseException e) {
+                if (object == null) {
+                    ParseUser currentUser = ParseUser.getCurrentUser();
+                    // an open workout doesn't exist, create one
+                    workout = new ParseObject("Workout");
+                    workout.put("createdBy", currentUser);
+                } else {
+                    // an open workout exists... add stuff to existing workout
+                    workout = object;
+                }
+            }
+        });
 
         // default scanPeriod = 1s, waitTime = 0s
         // setting scanPeriod = 500ms (0.5s), waitTime = 0s
@@ -291,6 +379,34 @@ public class RunActivity extends Activity {
             return true;
         }
 
+        if (id == R.id.action_logout) {
+            ParseUser.logOut();
+            ParseUser currentUser = ParseUser.getCurrentUser(); // this will now be null
+
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(intent);
+
+            finish();
+            //return true;
+        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    private class SpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> parent, View view, int pos,
+                                   long id) {
+
+            lane = Integer.parseInt(parent.getItemAtPosition(pos).toString());
+
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+
+        }
+
     }
 }

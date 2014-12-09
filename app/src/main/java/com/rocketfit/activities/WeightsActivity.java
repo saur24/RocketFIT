@@ -129,23 +129,23 @@ public class WeightsActivity extends Activity {
         }
 
         // check if a workout exists
-        ParseQuery<ParseObject> workoutQuery = ParseQuery.getQuery("Workout");
-        workoutQuery.whereEqualTo("createdBy", ParseUser.getCurrentUser());
-        workoutQuery.whereDoesNotExist("finishedAt");
-        workoutQuery.getFirstInBackground(new GetCallback<ParseObject>() {
-            public void done(ParseObject object, ParseException e) {
-                if (object == null) {
-                    ParseUser currentUser = ParseUser.getCurrentUser();
-                    // an open workout doesn't exist, create one
-                    workout = new ParseObject("Workout");
-                    workout.put("createdBy", currentUser);
-                } else {
-                    // an open workout exists... add stuff to existing workout
-                    workout = object;
-                }
+    ParseQuery<ParseObject> workoutQuery = ParseQuery.getQuery("Workout");
+    workoutQuery.whereEqualTo("createdBy", ParseUser.getCurrentUser());
+    workoutQuery.whereDoesNotExist("finishedAt");
+    workoutQuery.getFirstInBackground(new GetCallback<ParseObject>() {
+        public void done(ParseObject object, ParseException e) {
+            if (object == null) {
+                ParseUser currentUser = ParseUser.getCurrentUser();
+                // an open workout doesn't exist, create one
+                workout = new ParseObject("Workout");
+                workout.put("createdBy", currentUser);
+            } else {
+                // an open workout exists... add stuff to existing workout
+                workout = object;
             }
-        });
-    }
+        }
+    });
+}
 
     @Override
     public void onBackPressed() {

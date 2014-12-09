@@ -24,7 +24,7 @@ public class TabFourFragment extends android.support.v4.app.Fragment {
         View v = inflater.inflate(R.layout.fragment_tab_four, container, false);
 
         TextView tv = (TextView) v.findViewById(R.id.text);
-        tv.setText(this.getTag() + " Content");
+        tv.setText("Coming soon...");
         return v;
     }
 }

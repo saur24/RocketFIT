@@ -109,7 +109,7 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/btnReset"
+            android:id="@+id/btnSubmit"
             android:text="Submit"
             android:onClick="onClick"
             android:layout_weight="1" />
