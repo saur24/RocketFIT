@@ -92,7 +92,7 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
 
                     if (values.size() == 0) {
                         eMessage.setVisibility(View.VISIBLE);
-                        eMessage.setText("\n\nYou have no recent workouts!");
+                        eMessage.setText("\n\nNo recent workouts!");
                     }
 
                     if (!CheckInternet(getActivity().getApplicationContext())) {

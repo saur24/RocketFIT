@@ -93,7 +93,7 @@ public class TabTwoFragment extends android.support.v4.app.Fragment {
 
                     if (values.size() == 0) {
                         eMessage.setVisibility(View.VISIBLE);
-                        eMessage.setText("\n\nYou have no friends. Search by username to find friends!");
+                        eMessage.setText("\n\nNo friends to display!");
                     }
                     // Get ListView object from xml
                     listOfFriends = (ListView) recentItems.findViewById(R.id.listOfFriends);
