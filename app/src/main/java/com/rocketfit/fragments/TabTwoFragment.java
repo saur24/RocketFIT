@@ -127,7 +127,7 @@ public class TabTwoFragment extends android.support.v4.app.Fragment {
                             String itemValue = (String) listOfFriends.getItemAtPosition(position);
 
                             Intent i = new Intent(getActivity().getApplicationContext(), SearchableActivity.class);
-                            i.putExtra("friend", friendUsername);
+                            i.putExtra("friend", friends.get(itemPosition));
                             startActivity(i);
 
                         }

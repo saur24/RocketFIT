@@ -58,12 +58,12 @@ public class SearchableActivity extends Activity {
             String query = intent.getStringExtra(SearchManager.QUERY);
             doMySearch(query);
         } else {
-            String friend = "";
+            String friendFromTabs = "";
             Bundle extras= getIntent().getExtras();
             if(extras!=null)
             {
-                friend = extras.getString("friend"); // get the value based on the key
-                doMySearch(friend);
+                friendFromTabs = extras.getString("friend"); // get the value based on the key
+                doMySearch(friendFromTabs);
             }
         }
     }
