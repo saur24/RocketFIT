@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuInflater;
 import android.view.View;
@@ -56,8 +57,15 @@ public class SearchableActivity extends Activity {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             doMySearch(query);
+        } else {
+            String friend = "";
+            Bundle extras= getIntent().getExtras();
+            if(extras!=null)
+            {
+                friend = extras.getString("friend"); // get the value based on the key
+                doMySearch(friend);
+            }
         }
-
     }
 
     public void doMySearch(final String q) {
@@ -99,8 +107,22 @@ public class SearchableActivity extends Activity {
                     alert1.show();
 
                 } else {
+                    Boolean isFriend = false;
+                    ParseObject friend;
+
+                    // check if user is a friend
+                    ParseQuery<ParseObject> friendQuery = ParseUser.getCurrentUser().getRelation("friends").getQuery();
+                    friendQuery.whereEqualTo("username", q);
+                    try {
+                        friendQuery.getFirst();
+                        isFriend = true;
+                    } catch (ParseException e1) {
+
+                    }
+
                     Intent i = new Intent(getApplicationContext(), FriendActivity.class);
                     i.putExtra("friend", q);
+                    i.putExtra("isFriend", isFriend);
                     startActivity(i);
                     finish();
                 }

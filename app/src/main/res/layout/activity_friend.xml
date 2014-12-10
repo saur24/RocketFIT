@@ -6,7 +6,6 @@
     tools:context="com.rocketfit.activities.FriendActivity"
     android:id="@+id/profile_page">
 
-
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -23,7 +22,8 @@
             android:layout_height="60dp"
             android:layout_gravity="center_horizontal"
             android:id="@+id/profile_image"
-            android:layout_alignParentTop="true" />
+            android:layout_alignParentTop="true"
+            android:contentDescription="Profile Picture"/>
 
         <LinearLayout
             android:orientation="vertical"

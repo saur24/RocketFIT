@@ -20,6 +20,19 @@
         android:layout_marginBottom="10dp"
         android:textStyle="bold" />
 
+    <TextView
+        android:text="Your phone does not have Bluetooth 4.0. You are not able to use this feature of the app!"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#F08080"
+        android:textSize="18sp"
+        android:textIsSelectable="false"
+        android:id="@+id/ble_not_supported"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone"
+        android:textStyle="bold" />
+
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"

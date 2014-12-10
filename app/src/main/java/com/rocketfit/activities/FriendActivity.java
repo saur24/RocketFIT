@@ -1,6 +1,5 @@
 package com.rocketfit.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -10,30 +9,24 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
 import android.support.v4.app.NavUtils;
-import android.text.Editable;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.Session;
+import com.google.android.gms.common.data.Freezable;
 import com.parse.GetCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.rocketfit.fragments.TabOneFragment;
 import com.rocketfit.fragments.TabThreeFragment;
@@ -55,6 +48,9 @@ public class FriendActivity extends FragmentActivity {
     private String mName;
     private Uri profileImgUri;
     private ImageView profileImage;
+    private ParseObject parseFriend;
+    private Boolean isFriend;
+    private Menu newMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +68,7 @@ public class FriendActivity extends FragmentActivity {
         if(extras!=null)
         {
             friend = extras.getString("friend"); // get the value based on the key
+            isFriend = extras.getBoolean("isFriend");
 
             ParseQuery<ParseObject> query = ParseQuery.getQuery("_User");
             query.whereEqualTo("username", friend);
@@ -80,6 +77,8 @@ public class FriendActivity extends FragmentActivity {
                     if (object == null) {
                         Toast.makeText(FriendActivity.this, "Could not find user", Toast.LENGTH_LONG).show();
                     } else {
+                        parseFriend = object;
+
                         // Set the date format
                         DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
                         Date date = object.getCreatedAt();
@@ -136,15 +135,20 @@ public class FriendActivity extends FragmentActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_profilefb, menu);
-
-        // Get the SearchView and set the searchable configuration
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-
-        // Assumes current activity is the searchable activity
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        if(isFriend) {
+            getMenuInflater().inflate(R.menu.menu_isfriend, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.menu_isnotfriend, menu);
+        }
+//
+//        // Get the SearchView and set the searchable configuration
+//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+//
+//        // Assumes current activity is the searchable activity
+//        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
         return true;
     }
@@ -166,10 +170,76 @@ public class FriendActivity extends FragmentActivity {
             return true;
         }
 
-        if (id == R.id.action_search) {
+        if(id == R.id.action_addFriend) {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(FriendActivity.this);
+            TextView myMsg = new TextView(getApplicationContext());
+            myMsg.setText("\nAre you sure you would like to add this person?");
+            myMsg.setTextColor(Color.BLACK);
+            myMsg.setPadding(10,10,10,10);
+            myMsg.setTextSize(14);
+            builder1.setTitle("Add Friend");
+            builder1.setView(myMsg);
+            builder1.setPositiveButton("YES",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // make the connection to the Parse User
+
+                            ParseRelation<ParseObject> friendRelation = ParseUser.getCurrentUser().getRelation("friends");
+                            friendRelation.add(parseFriend);
+
+                            Toast.makeText(getApplicationContext(), "Friend successfully added!", Toast.LENGTH_SHORT).show();
+
+                            ParseUser.getCurrentUser().saveInBackground();
+                        }
+                    });
+            builder1.setNegativeButton("NO",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+
+            AlertDialog alert1 = builder1.create();
+            alert1.show();
 
             return true;
         }
+
+        if(id == R.id.action_removeFriend) {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(FriendActivity.this);
+            TextView myMsg = new TextView(getApplicationContext());
+            myMsg.setText("\nAre you sure you would like to remove this person?");
+            myMsg.setTextColor(Color.BLACK);
+            myMsg.setPadding(10,10,10,10);
+            myMsg.setTextSize(14);
+            builder1.setTitle("Remove Friend");
+            builder1.setView(myMsg);
+            builder1.setPositiveButton("YES",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // make the connection to the Parse User
+
+                            ParseRelation<ParseObject> friendRelation = ParseUser.getCurrentUser().getRelation("friends");
+                            friendRelation.remove(parseFriend);
+
+                            Toast.makeText(getApplicationContext(), "Friend successfully removed!", Toast.LENGTH_SHORT).show();
+
+                            ParseUser.getCurrentUser().saveInBackground();
+                        }
+                    });
+            builder1.setNegativeButton("NO",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+
+            AlertDialog alert1 = builder1.create();
+            alert1.show();
+
+            return true;
+        }
+
 
         if (id == R.id.action_logout) {
             ParseUser.logOut();

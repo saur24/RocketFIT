@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -56,7 +57,7 @@ public class RunActivity extends Activity {
     private static final double LANE_4 = 0.174811;
 
     Chronometer chrono;
-    TextView debug, defaultMsg;
+    TextView debug, defaultMsg, ble_not_supported;
     Button btnStart;
     Button btnPause;
     Button btnSubmit;
@@ -281,12 +282,21 @@ public class RunActivity extends Activity {
         btnSubmit = (Button) findViewById(R.id.btnSubmit);
         debug = (TextView) findViewById(R.id.debugText);
         defaultMsg = (TextView) findViewById(R.id.defaultMsg);
+        ble_not_supported = (TextView) findViewById(R.id.ble_not_supported);
         mSelectLane = (Spinner) findViewById(R.id.laneSpinner);
 
         btnPause.setEnabled(false);
         btnSubmit.setEnabled(false);
         btnStart.setEnabled(false);
         mSelectLane.setOnItemSelectedListener(new SpinnerOnItemSelectedListener());
+
+        // Use this check to determine whether BLE is supported on the device. Then
+        // you can selectively disable BLE-related features.
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            defaultMsg.setVisibility(View.GONE);
+            ble_not_supported.setVisibility(View.VISIBLE);
+            finish();
+        }
 
         // check if a workout exists
         ParseQuery<ParseObject> workoutQuery = ParseQuery.getQuery("Workout");

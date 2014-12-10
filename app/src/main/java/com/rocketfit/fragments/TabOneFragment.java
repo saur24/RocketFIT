@@ -92,12 +92,12 @@ public class TabOneFragment extends android.support.v4.app.Fragment {
 
                     if (values.size() == 0) {
                         eMessage.setVisibility(View.VISIBLE);
-                        eMessage.setText("You have no recent workouts!");
+                        eMessage.setText("\n\nYou have no recent workouts!");
                     }
 
                     if (!CheckInternet(getActivity().getApplicationContext())) {
                         eMessage.setVisibility(View.VISIBLE);
-                        eMessage.setText("Please check your Internet connection!");
+                        eMessage.setText("\n\nPlease check your Internet connection!");
                     }
 
                     // Get ListView object from xml

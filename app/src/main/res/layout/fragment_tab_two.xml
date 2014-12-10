@@ -5,14 +5,30 @@
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:background="#eaecee"
-    android:baselineAligned="true">
+    android:clickable="false">
 
+    <ProgressBar
+        style="?android:attr/progressBarStyle"
+        android:id="@+id/progressbar_loading"
+        android:visibility="gone"
+        android:paddingTop="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
     <TextView
-        android:id="@+id/text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/errorMessage"
+        android:visibility="gone"
+        android:gravity="center"
+        android:textSize="18sp"
+        />
+
+    <ListView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical|center_horizontal"
-        android:text="@string/hello_world"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_height="wrap_content"
+        android:id="@+id/listOfFriends"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#000000"
+        />
 
 </LinearLayout>
